@@ -28,8 +28,11 @@ function Stud(props) {
 
 function App() {
   return (
-    <div>
-      <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
+    <div class="flex">
+      <div class="flex-none">
+        Stud3D
+      </div>
+      <div className="flex-1 h-screen">
         <Canvas camera={{ position: [-100, 0, 0] }}>
           <Controls />
           <axesHelper/>
