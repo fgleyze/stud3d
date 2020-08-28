@@ -75,6 +75,22 @@ class Canvas3d extends React.Component {
       commonStuds.push(this.renderCommonStud(offset, height))
     }
 
+    const doubleTopPlate = {
+      length: length - 2 * 145,
+      xPosition: 145,
+    }
+
+    if (this.props.leftJunction == maleStraigthJunction && this.props.rightJunction == maleStraigthJunction) {
+      doubleTopPlate.length = length + 2 * 145;
+      doubleTopPlate.xPosition = -145;
+    } else if (this.props.leftJunction == maleStraigthJunction) {
+      doubleTopPlate.length = length;
+      doubleTopPlate.xPosition = -145;
+    } else if (this.props.rightJunction == maleStraigthJunction) {
+      doubleTopPlate.length = length;
+      doubleTopPlate.xPosition = 145;
+    }
+
     return <Canvas camera={{ position: [-12, 0, 30] }}>
       <Controls />
       <axesHelper/>
@@ -86,7 +102,7 @@ class Canvas3d extends React.Component {
         // top plate
         <Stud dimensions={[length, 45, 145]} positions={[0, height - (2 * 45), 0]}/>
         // double top plate
-        <Stud dimensions={[length - 2 * 145, 45, 145]} positions={[145, height - 45, 0]}/>
+        <Stud dimensions={[doubleTopPlate.length, 45, 145]} positions={[doubleTopPlate.xPosition, height - 45, 0]}/>
 
         // common studs
         {commonStuds}
