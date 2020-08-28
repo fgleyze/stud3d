@@ -34,7 +34,7 @@ function Stud(props) {
 
   return (
     <group position={positions.map(coor => coor / 100)}>
-      <lineSegments ref={mesh}>
+      <lineSegments>
         <edgesGeometry attach="geometry" args={[geom]} />
         <lineBasicMaterial color="black" attach="material" />
       </lineSegments>
@@ -46,21 +46,52 @@ function Stud(props) {
   )
 }
 
-function Canvas3d(props) {
-  const wallDimensions = [4000, 2500, 145];
+function CommonStud(props) {
+  return (
+    <Stud dimensions={[45, props.height - (3 * 45), 145]} positions={[props.offset, 45, 0]}/>
+  );
+}
+
+class Canvas3d extends React.Component {
+  renderCommonStud(offset, height) {
+    return (
+      <CommonStud key={offset} offset={offset} height={height} />
+    );
+  }
   
-  return <Canvas camera={{ position: [0, 0, 100] }}>
-    <Controls />
-    <axesHelper/>
-    <pointLight position={[150, 140, 100]} />
-    <pointLight position={[-150, -140, -100]} />
-    <group position={wallDimensions.map(coor => -Math.abs(coor / 200))}>
-      <Stud dimensions={[4000, 45, 145]} positions={[0, 0, 0]}/>
-      <Stud dimensions={[4000, 45, 145]} positions={[0, 2500, 0]}/>
-      <Stud dimensions={[45, 2500, 145]} positions={[0, 0, 0]}/>
-      <Stud dimensions={[45, 2500, 145]} positions={[4000, 0, 0]}/>
-    </group>
-  </Canvas>
+  render() {
+    const length = 4000;
+    const height = 2500;
+
+    const wallDimensions = [length, height, 145];
+
+    let commonStuds = []
+
+    for ( let offset = 0; offset < length; offset += 645 ) {
+      commonStuds.push(this.renderCommonStud(offset, height))
+    }
+
+    return <Canvas camera={{ position: [-12, 0, 30] }}>
+      <Controls />
+      <axesHelper/>
+      <pointLight position={[150, 140, 100]} />
+      <pointLight position={[-150, -140, -100]} />
+      <group position={wallDimensions.map(coor => -Math.abs(coor / 100 / 2))}>
+        // bottom plate
+        <Stud dimensions={[length, 45, 145]} positions={[0, 0, 0]}/>
+        // top plate
+        <Stud dimensions={[length, 45, 145]} positions={[0, height - (2 * 45), 0]}/>
+        // double top plate
+        <Stud dimensions={[length - 2 * 145, 45, 145]} positions={[145, height - 45, 0]}/>
+
+        // common studs
+        {commonStuds}
+
+        // last stud
+        <Stud dimensions={[45, height - (3 * 45), 145]} positions={[length - 45, 45, 0]}/>
+      </group>
+    </Canvas>
+  }
 }
 
 function App() {
