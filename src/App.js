@@ -147,46 +147,51 @@ class App extends React.Component {
   render() {
     return (
       <div className="flex">
-        <div className="flex-none px-4">
-          <p className="py-4 text-center">Stud 3D</p>
+        <div className="relative flex-none border-r border-solid border-gray-300">
+          <div className="px-4">
+            <p className="py-4 text-center">Stud 3D</p>
 
-          <label className="block mb-1">Longueur en mm :</label>
-          <input
-            className="block w-full mb-4 border rounded py-2 px-3"
-            type="number"
-            value={this.state.length}
-            onChange={this.handleLengthChange}
-          />
+            <label className="block mb-1">Longueur en mm :</label>
+            <input
+              className="block w-full mb-4 border rounded py-2 px-3"
+              type="number"
+              value={this.state.length}
+              onChange={this.handleLengthChange}
+            />
 
-          <label className="block mb-1">Hauteur en mm :</label>
-          <input
-            className="block w-full mb-4 border rounded py-2 px-3"
-            type="number"
-            value={this.state.height}
-            onChange={this.handleHeightChange}
-          />
+            <label className="block mb-1">Hauteur en mm :</label>
+            <input
+              className="block w-full mb-4 border rounded py-2 px-3"
+              type="number"
+              value={this.state.height}
+              onChange={this.handleHeightChange}
+            />
 
-          <label className="block mb-1">Liaison gauche :</label>
-          <select
-            value={this.state.leftJunction}
-            onChange={this.handleLeftJunctionChange}
-            className="block w-full mb-4 border rounded py-2 px-3"
-          >
-            <option value={femaleStraigthJunction}>tout droit - femelle</option>
-            <option value={maleStraigthJunction}>angle/tout droit - mâle</option>
-            <option value={femaleCornerJunction}>angle - femme</option>
-          </select>
+            <label className="block mb-1">Liaison gauche :</label>
+            <select
+              value={this.state.leftJunction}
+              onChange={this.handleLeftJunctionChange}
+              className="block w-full mb-4 border rounded py-2 px-3"
+            >
+              <option value={femaleStraigthJunction}>tout droit - femelle</option>
+              <option value={maleStraigthJunction}>angle/tout droit - mâle</option>
+              <option value={femaleCornerJunction}>angle - femme</option>
+            </select>
 
-          <label className="block mb-1">Liaison droite :</label>
-          <select
-            value={this.state.rightJunction}
-            onChange={this.handleRightJunctionChange}
-            className="block w-full mb-4 border rounded py-2 px-3"
-          >
-            <option value={femaleStraigthJunction}>tout droit - femelle</option>
-            <option value={maleStraigthJunction}>angle/tout droit - mâle</option>
-            <option value={femaleCornerJunction}>angle - femme</option>
-          </select>
+            <label className="block mb-1">Liaison droite :</label>
+            <select
+              value={this.state.rightJunction}
+              onChange={this.handleRightJunctionChange}
+              className="block w-full mb-4 border rounded py-2 px-3"
+            >
+              <option value={femaleStraigthJunction}>tout droit - femelle</option>
+              <option value={maleStraigthJunction}>angle/tout droit - mâle</option>
+              <option value={femaleCornerJunction}>angle - femme</option>
+            </select>
+          </div>
+          <a href="https://github.com/fgleyze/stud3d" target="_blank" className="w-full absolute bottom-0 pb-4">
+            <img className="mx-auto h-8" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMGMtNi42MjYgMC0xMiA1LjM3My0xMiAxMiAwIDUuMzAyIDMuNDM4IDkuOCA4LjIwNyAxMS4zODcuNTk5LjExMS43OTMtLjI2MS43OTMtLjU3N3YtMi4yMzRjLTMuMzM4LjcyNi00LjAzMy0xLjQxNi00LjAzMy0xLjQxNi0uNTQ2LTEuMzg3LTEuMzMzLTEuNzU2LTEuMzMzLTEuNzU2LTEuMDg5LS43NDUuMDgzLS43MjkuMDgzLS43MjkgMS4yMDUuMDg0IDEuODM5IDEuMjM3IDEuODM5IDEuMjM3IDEuMDcgMS44MzQgMi44MDcgMS4zMDQgMy40OTIuOTk3LjEwNy0uNzc1LjQxOC0xLjMwNS43NjItMS42MDQtMi42NjUtLjMwNS01LjQ2Ny0xLjMzNC01LjQ2Ny01LjkzMSAwLTEuMzExLjQ2OS0yLjM4MSAxLjIzNi0zLjIyMS0uMTI0LS4zMDMtLjUzNS0xLjUyNC4xMTctMy4xNzYgMCAwIDEuMDA4LS4zMjIgMy4zMDEgMS4yMy45NTctLjI2NiAxLjk4My0uMzk5IDMuMDAzLS40MDQgMS4wMi4wMDUgMi4wNDcuMTM4IDMuMDA2LjQwNCAyLjI5MS0xLjU1MiAzLjI5Ny0xLjIzIDMuMjk3LTEuMjMuNjUzIDEuNjUzLjI0MiAyLjg3NC4xMTggMy4xNzYuNzcuODQgMS4yMzUgMS45MTEgMS4yMzUgMy4yMjEgMCA0LjYwOS0yLjgwNyA1LjYyNC01LjQ3OSA1LjkyMS40My4zNzIuODIzIDEuMTAyLjgyMyAyLjIyMnYzLjI5M2MwIC4zMTkuMTkyLjY5NC44MDEuNTc2IDQuNzY1LTEuNTg5IDguMTk5LTYuMDg2IDguMTk5LTExLjM4NiAwLTYuNjI3LTUuMzczLTEyLTEyLTEyeiIvPjwvc3ZnPg=="></img>
+          </a>
         </div>
         <div className="flex-1 h-screen">
           <Canvas3d
