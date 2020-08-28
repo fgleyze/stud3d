@@ -8,7 +8,7 @@ extend({ OrbitControls });
 
 const femaleStraigthJunction = 0;
 const maleStraigthJunction = 1;
-const maleCornerJunction = 2;
+const femaleCornerJunction = 2;
 
 function Controls(props) {
   const controls = useRef()
@@ -71,7 +71,7 @@ class Canvas3d extends React.Component {
 
     let commonStuds = []
 
-    for ( let offset = 0; offset < (this.props.rightJunction == maleCornerJunction ? length - (145 + 45 * 2) : length); offset += 645 ) {
+    for ( let offset = 0; offset < (this.props.rightJunction == femaleCornerJunction ? length - (145 + 45 * 2) : length); offset += 645 ) {
       commonStuds.push(this.renderCommonStud(offset, height))
     }
 
@@ -111,10 +111,10 @@ class Canvas3d extends React.Component {
         <Stud dimensions={[45, height - (3 * 45), 145]} positions={[length - 45, 45, 0]}/>
 
         //left male corner junction
-        {this.props.leftJunction == maleCornerJunction && <Stud dimensions={[145, height - (3 * 45), 45]} positions={[45, 45, 100]}/>}
+        {this.props.leftJunction == femaleCornerJunction && <Stud dimensions={[145, height - (3 * 45), 45]} positions={[45, 45, 100]}/>}
 
         //right male corner junction
-        {this.props.rightJunction == maleCornerJunction && <Stud dimensions={[145, height - (3 * 45), 45]} positions={[length - (45 + 145), 45, 100]}/>}
+        {this.props.rightJunction == femaleCornerJunction && <Stud dimensions={[145, height - (3 * 45), 45]} positions={[length - (45 + 145), 45, 100]}/>}
       </group>
     </Canvas>
   }
@@ -172,9 +172,9 @@ class App extends React.Component {
             onChange={this.handleLeftJunctionChange}
             className="block w-full mb-4 border rounded py-2 px-3"
           >
-            <option value={femaleStraigthJunction}>droite femme</option>
-            <option value={maleStraigthJunction}>droite mâle / angle femme</option>
-            <option value={maleCornerJunction}>angle mâle</option>
+            <option value={femaleStraigthJunction}>tout droit - femelle</option>
+            <option value={maleStraigthJunction}>angle/tout droit - mâle</option>
+            <option value={femaleCornerJunction}>angle - femme</option>
           </select>
 
           <label className="block mb-1">Liaison droite :</label>
@@ -183,9 +183,9 @@ class App extends React.Component {
             onChange={this.handleRightJunctionChange}
             className="block w-full mb-4 border rounded py-2 px-3"
           >
-            <option value={femaleStraigthJunction}>droite femme</option>
-            <option value={maleStraigthJunction}>droite mâle / angle femme</option>
-            <option value={maleCornerJunction}>angle mâle</option>
+            <option value={femaleStraigthJunction}>tout droit - femelle</option>
+            <option value={maleStraigthJunction}>angle/tout droit - mâle</option>
+            <option value={femaleCornerJunction}>angle - femme</option>
           </select>
         </div>
         <div className="flex-1 h-screen">
