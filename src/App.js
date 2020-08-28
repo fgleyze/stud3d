@@ -71,7 +71,7 @@ class Canvas3d extends React.Component {
 
     let commonStuds = []
 
-    for ( let offset = 0; offset < length; offset += 645 ) {
+    for ( let offset = 0; offset < (this.props.rightJunction == maleCornerJunction ? length - (145 + 45 * 2) : length); offset += 645 ) {
       commonStuds.push(this.renderCommonStud(offset, height))
     }
 
