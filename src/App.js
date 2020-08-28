@@ -1,6 +1,6 @@
 import React, { useRef, useMemo } from 'react'
 import './App.css';
-import { extend, Canvas, useFrame, useThree, createPortal } from 'react-three-fiber';
+import { extend, Canvas, useFrame, useThree } from 'react-three-fiber';
 import { OrbitControls } from "three-orbitcontrols";
 import * as THREE from 'three';
 
@@ -23,7 +23,7 @@ function Stud(props) {
     positions.push(props.positions[i] + resetPositions[i])
   }
 
-  const scaledDimensions = props.dimensions.map(x => x / 100);
+  const scaledDimensions = props.dimensions.map(coor => coor / 100);
 
   // https://github.com/react-spring/react-three-fiber/issues/250
   const geom = useMemo(() => new THREE.BoxBufferGeometry(
@@ -33,13 +33,13 @@ function Stud(props) {
   )
 
   return (
-    <group>
-      <lineSegments position={positions.map(x => x / 100)} ref={mesh}>
+    <group position={positions.map(coor => coor / 100)}>
+      <lineSegments ref={mesh}>
         <edgesGeometry attach="geometry" args={[geom]} />
         <lineBasicMaterial color="black" attach="material" />
       </lineSegments>
-      <mesh position={positions.map(x => x / 100)} ref={mesh}>
-        <boxBufferGeometry attach="geometry" args={props.dimensions.map(x => x / 100)} />
+      <mesh ref={mesh}>
+        <boxBufferGeometry attach="geometry" args={props.dimensions.map(coor => coor / 100)} />
         <meshStandardMaterial attach="material" color='orange' />
       </mesh>
     </group>
@@ -47,15 +47,19 @@ function Stud(props) {
 }
 
 function Canvas3d(props) {
-  return <Canvas camera={{ position: [-100, 0, 0] }}>
+  const wallDimensions = [4000, 2500, 145];
+  
+  return <Canvas camera={{ position: [0, 0, 100] }}>
     <Controls />
     <axesHelper/>
     <pointLight position={[150, 140, 100]} />
     <pointLight position={[-150, -140, -100]} />
-    <Stud dimensions={[145, 45, 4000]} positions={[0, 0, 0]}/>
-    <Stud dimensions={[145, 45, 4000]} positions={[0, 2500, 0]}/>
-    <Stud dimensions={[145, 2500, 45]} positions={[0, 0, 0]}/>
-    <Stud dimensions={[145, 2500, 45]} positions={[0, 0, 4000]}/>
+    <group position={wallDimensions.map(coor => -Math.abs(coor / 200))}>
+      <Stud dimensions={[4000, 45, 145]} positions={[0, 0, 0]}/>
+      <Stud dimensions={[4000, 45, 145]} positions={[0, 2500, 0]}/>
+      <Stud dimensions={[45, 2500, 145]} positions={[0, 0, 0]}/>
+      <Stud dimensions={[45, 2500, 145]} positions={[4000, 0, 0]}/>
+    </group>
   </Canvas>
 }
 
