@@ -2,7 +2,7 @@ import React, { useRef, useMemo } from 'react'
 import './App.css';
 import { extend, Canvas, useFrame, useThree } from 'react-three-fiber';
 import { OrbitControls } from "three-orbitcontrols";
-import * as THREE from 'three';
+import { BoxBufferGeometry } from 'three';
 
 extend({ OrbitControls });
 
@@ -30,7 +30,7 @@ function Stud(props) {
   const scaledDimensions = props.dimensions.map(coor => coor / 100);
 
   // https://github.com/react-spring/react-three-fiber/issues/250
-  const geom = useMemo(() => new THREE.BoxBufferGeometry(
+  const geom = useMemo(() => new BoxBufferGeometry(
     scaledDimensions[0], 
     scaledDimensions[1], 
     scaledDimensions[2])
@@ -106,9 +106,9 @@ class Canvas3d extends React.Component {
 
 class App extends React.Component {
   state = {
-    length: 3000,
+    length: 3500,
     height: 2500,
-    leftJunction: maleCornerJunction,
+    leftJunction: femaleStraigthJunction,
     rightJunction: femaleStraigthJunction,
   };
 
