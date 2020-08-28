@@ -60,8 +60,8 @@ class Canvas3d extends React.Component {
   }
   
   render() {
-    const length = 4000;
-    const height = 2500;
+    const length = this.props.length;
+    const height = this.props.height;
 
     const wallDimensions = [length, height, 145];
 
@@ -94,17 +94,49 @@ class Canvas3d extends React.Component {
   }
 }
 
-function App() {
-  return (
-    <div className="flex">
-      <div className="flex-none">
-        Stud3D
+class App extends React.Component {
+  state = {
+    length: 4000,
+    height: 2500,
+  };
+
+  handleLengthChange = event => {
+    this.setState({ length: event.target.value });
+  };
+
+  handleHeightChange = event => {
+    this.setState({ height: event.target.value });
+  };
+
+  render() {
+    return (
+      <div className="flex">
+        <div className="flex-none px-4">
+          <p className="py-4 text-center">Stud 3D</p>
+          <label className="block mb-1">Longueur en mm :</label>
+          <input
+            className="block mb-4 border rounded py-2 px-3"
+            type="number"
+            value={this.state.length}
+            onChange={this.handleLengthChange}
+          />
+          <label className="block mb-1">Hauteur en mm :</label>
+          <input
+            className="block mb-4 border rounded py-2 px-3"
+            type="number"
+            value={this.state.height}
+            onChange={this.handleHeightChange}
+          />
+        </div>
+        <div className="flex-1 h-screen">
+          <Canvas3d
+            height={this.state.height}
+            length={this.state.length}
+          />
+        </div>
       </div>
-      <div className="flex-1 h-screen">
-        <Canvas3d/>
-      </div>
-    </div>
-  );
+    );
+  }
 }
 
 export default App;
