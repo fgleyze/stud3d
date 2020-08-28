@@ -57,23 +57,83 @@ function Stud(props) {
 
 class Canvas3d extends React.Component {  
   render() {
-    const length = this.props.length;
-    const height = this.props.height;
+    const wallDimensions = [this.props.length, this.props.height, 145];
 
-    const wallDimensions = [length, height, 145];
+    let renderedStuds = [];
 
+    for (let stud of this.props.studs) {
+      renderedStuds.push(<Stud dimensions={stud.dimensions} positions={stud.positions}/>)
+    }
+
+    return <Canvas camera={{ position: [-12, 0, 30] }}>
+      <Controls />
+      <axesHelper/>
+      <pointLight position={[150, 140, 100]} />
+      <pointLight position={[-150, -140, -100]} />
+      <group position={wallDimensions.map(coor => -Math.abs(coor / 100 / 2))}>
+        //studs
+        {renderedStuds}
+      </group>
+    </Canvas>
+  }
+}
+
+class App extends React.Component {
+  state = {
+    length: 3500,
+    height: 2500,
+    leftJunction: femaleStraigthJunction,
+    rightJunction: femaleStraigthJunction,
+    studs: [],
+  };
+
+  componentDidMount() {
+    this.setState({ 
+      studs: this.prepareStuds(this.state.length, this.state.height, this.state.leftJunction, this.state.rightJunction)
+    });
+ }
+
+  handleLengthChange = event => {
+    this.setState({ 
+      length: event.target.value,
+      studs: this.prepareStuds(event.target.value, this.state.height, this.state.leftJunction, this.state.rightJunction)
+    });
+  };
+
+  handleHeightChange = event => {
+    this.setState({ 
+      height: event.target.value,
+      studs: this.prepareStuds( this.state.length, event.target.value, this.state.leftJunction, this.state.rightJunction)
+    });
+  };
+
+  handleLeftJunctionChange = event => {
+    this.setState({ 
+      leftJunction: event.target.value,
+      studs: this.prepareStuds(this.state.length, this.state.height, event.target.value, this.state.rightJunction)
+    });
+  };
+
+  handleRightJunctionChange = event => {
+    this.setState({ 
+      rightJunction: event.target.value,
+      studs: this.prepareStuds(this.state.length, this.state.height, this.state.leftJunction, event.target.value)
+    });
+  };
+
+  prepareStuds(length, height, leftJunction, rightJunction) {
     const doubleTopPlate = {
       length: length - 2 * 145,
       xPosition: 145,
     }
 
-    if (this.props.leftJunction == maleStraigthJunction && this.props.rightJunction == maleStraigthJunction) {
+    if (leftJunction == maleStraigthJunction && rightJunction == maleStraigthJunction) {
       doubleTopPlate.length = length + 2 * 145;
       doubleTopPlate.xPosition = -145;
-    } else if (this.props.leftJunction == maleStraigthJunction) {
+    } else if (leftJunction == maleStraigthJunction) {
       doubleTopPlate.length = length;
       doubleTopPlate.xPosition = -145;
-    } else if (this.props.rightJunction == maleStraigthJunction) {
+    } else if (rightJunction == maleStraigthJunction) {
       doubleTopPlate.length = length;
       doubleTopPlate.xPosition = 145;
     }
@@ -102,7 +162,7 @@ class Canvas3d extends React.Component {
     ];
     
     // common studs
-    for ( let offset = 0; offset < (this.props.rightJunction == femaleCornerJunction ? length - (145 + 45 * 2) : length); offset += 645 ) {
+    for ( let offset = 0; offset < (rightJunction == femaleCornerJunction ? length - (145 + 45 * 2) : length); offset += 645 ) {
       studs.push({
         dimensions: [45, height - (3 * 45), 145],
         positions: [offset, 45, 0]
@@ -110,7 +170,7 @@ class Canvas3d extends React.Component {
     }
 
     // left corner female junction stud
-    if (this.props.leftJunction == femaleCornerJunction) {
+    if (leftJunction == femaleCornerJunction) {
       studs.push({
         dimensions: [145, height - (3 * 45), 45],
         positions: [45, 45, 100]
@@ -118,59 +178,14 @@ class Canvas3d extends React.Component {
     }
 
     // right corner female junction stud
-    if (this.props.rightJunction == femaleCornerJunction) {
+    if (rightJunction == femaleCornerJunction) {
       studs.push({
         dimensions: [145, height - (3 * 45), 45],
         positions: [length - (45 + 145), 45, 100]
       });
     }
 
-    let renderedStuds = [];
-
-    for (let stud of studs) {
-      renderedStuds.push(<Stud dimensions={stud.dimensions} positions={stud.positions}/>)
-    }
-
-    return <Canvas camera={{ position: [-12, 0, 30] }}>
-      <Controls />
-      <axesHelper/>
-      <pointLight position={[150, 140, 100]} />
-      <pointLight position={[-150, -140, -100]} />
-      <group position={wallDimensions.map(coor => -Math.abs(coor / 100 / 2))}>
-        //studs
-        {renderedStuds}
-      </group>
-    </Canvas>
-  }
-}
-
-class App extends React.Component {
-  state = {
-    length: 3500,
-    height: 2500,
-    leftJunction: femaleStraigthJunction,
-    rightJunction: femaleStraigthJunction,
-    studs: [],
-  };
-
-  handleLengthChange = event => {
-    this.setState({ length: event.target.value });
-  };
-
-  handleHeightChange = event => {
-    this.setState({ height: event.target.value });
-  };
-
-  handleLeftJunctionChange = event => {
-    this.setState({ leftJunction: event.target.value });
-  };
-
-  handleRightJunctionChange = event => {
-    this.setState({ rightJunction: event.target.value });
-  };
-
-  createStuds() {
-
+    return studs;
   }
 
   render() {
@@ -226,6 +241,7 @@ class App extends React.Component {
           <Canvas3d
             height={this.state.height}
             length={this.state.length}
+            studs={this.state.studs}
             leftJunction={this.state.leftJunction}
             rightJunction={this.state.rightJunction}
           />
