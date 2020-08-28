@@ -6,6 +6,10 @@ import * as THREE from 'three';
 
 extend({ OrbitControls });
 
+const femaleStraigthJunction = 0;
+const maleStraigthJunction = 1;
+const maleCornerJunction = 2;
+
 function Controls(props) {
   const controls = useRef()
   const { camera, gl } = useThree()
@@ -87,8 +91,14 @@ class Canvas3d extends React.Component {
         // common studs
         {commonStuds}
 
-        // last stud
+        // last common stud
         <Stud dimensions={[45, height - (3 * 45), 145]} positions={[length - 45, 45, 0]}/>
+
+        //left male corner junction
+        {this.props.leftJunction == maleCornerJunction && <Stud dimensions={[145, height - (3 * 45), 45]} positions={[45, 45, 100]}/>}
+
+        //right male corner junction
+        {this.props.rightJunction == maleCornerJunction && <Stud dimensions={[145, height - (3 * 45), 45]} positions={[length - (45 + 145), 45, 100]}/>}
       </group>
     </Canvas>
   }
@@ -96,8 +106,10 @@ class Canvas3d extends React.Component {
 
 class App extends React.Component {
   state = {
-    length: 4000,
+    length: 3000,
     height: 2500,
+    leftJunction: maleCornerJunction,
+    rightJunction: femaleStraigthJunction,
   };
 
   handleLengthChange = event => {
@@ -108,30 +120,64 @@ class App extends React.Component {
     this.setState({ height: event.target.value });
   };
 
+  handleLeftJunctionChange = event => {
+    this.setState({ leftJunction: event.target.value });
+  };
+
+  handleRightJunctionChange = event => {
+    this.setState({ rightJunction: event.target.value });
+  };
+
   render() {
     return (
       <div className="flex">
         <div className="flex-none px-4">
           <p className="py-4 text-center">Stud 3D</p>
+
           <label className="block mb-1">Longueur en mm :</label>
           <input
-            className="block mb-4 border rounded py-2 px-3"
+            className="block w-full mb-4 border rounded py-2 px-3"
             type="number"
             value={this.state.length}
             onChange={this.handleLengthChange}
           />
+
           <label className="block mb-1">Hauteur en mm :</label>
           <input
-            className="block mb-4 border rounded py-2 px-3"
+            className="block w-full mb-4 border rounded py-2 px-3"
             type="number"
             value={this.state.height}
             onChange={this.handleHeightChange}
           />
+
+          <label className="block mb-1">Liaison gauche :</label>
+          <select
+            value={this.state.leftJunction}
+            onChange={this.handleLeftJunctionChange}
+            className="block w-full mb-4 border rounded py-2 px-3"
+          >
+            <option value={femaleStraigthJunction}>droite femme</option>
+            <option value={maleStraigthJunction}>droite mâle / angle femme</option>
+            <option value={maleCornerJunction}>angle mâle</option>
+          </select>
+
+          <label className="block mb-1">Liaison droite :</label>
+          <select
+            value={this.state.rightJunction}
+            onChange={this.handleRightJunctionChange}
+            className="block w-full mb-4 border rounded py-2 px-3"
+          >
+            <option value={femaleStraigthJunction}>droite femme</option>
+            <option value={maleStraigthJunction}>droite mâle / angle femme</option>
+            <option value={maleCornerJunction}>angle mâle</option>
+          </select>
         </div>
         <div className="flex-1 h-screen">
           <Canvas3d
             height={this.state.height}
             length={this.state.length}
+            leftJunction={this.state.leftJunction}
+            rightJunction={this.state.rightJunction}
           />
         </div>
       </div>
