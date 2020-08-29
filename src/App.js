@@ -80,7 +80,6 @@ function Canvas3d(props) {
 }
 
 function Form(props) {
-
   function renderSelect(junction, handleJunctionChange) {
     return   <select
       value={junction}
@@ -116,6 +115,18 @@ function Form(props) {
     <label className="block mb-1">Liaison droite :</label>
     {renderSelect(props.rightJunction, props.handleRightJunctionChange)}
   </div>
+}
+
+function StudSections(props) {
+  let sections = [];
+
+  for (let stud of props.studs) {
+    sections.push(<p>{stud.dimensions[0]} x {stud.dimensions[1]} x {stud.dimensions[2]}</p>)
+  }
+
+  return <div>
+    {sections}
+  </div>;
 }
 
 class App extends React.Component {
@@ -257,6 +268,12 @@ class App extends React.Component {
             leftJunction={this.state.leftJunction}
             rightJunction={this.state.rightJunction}
           />
+        </div>
+        <div className="relative flex-none border-l border-solid border-gray-300">
+          <div className="px-4">
+            <p className="py-4 text-center text-xl">Sections</p>
+              <StudSections studs={this.state.studs} />
+          </div>
         </div>
       </div>
     );
