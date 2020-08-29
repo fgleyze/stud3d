@@ -6,9 +6,12 @@ import { BoxBufferGeometry } from 'three';
 
 extend({ OrbitControls });
 
-const femaleStraigthJunction = 0;
-const maleStraigthJunction = 1;
-const femaleCornerJunction = 2;
+const junctions = {
+  femaleStraigth: 0,
+  maleStraigth: 1,
+  femaleCorner: 2,
+}
+
 
 function Controls(props) {
   const controls = useRef()
@@ -55,13 +58,12 @@ function Stud(props) {
   )
 }
 
-class Canvas3d extends React.Component {  
-  render() {
-    const wallDimensions = [this.props.length, this.props.height, 145];
+function Canvas3d(props) {  
+    const wallDimensions = [props.length, props.height, 145];
 
     let renderedStuds = [];
 
-    for (let stud of this.props.studs) {
+    for (let stud of props.studs) {
       renderedStuds.push(<Stud dimensions={stud.dimensions} positions={stud.positions}/>)
     }
 
@@ -75,15 +77,53 @@ class Canvas3d extends React.Component {
         {renderedStuds}
       </group>
     </Canvas>
+}
+
+function Form(props) {
+
+  function renderSelect(junction, handleJunctionChange) {
+    return   <select
+      value={junction}
+      onChange={handleJunctionChange}
+      className="block w-full mb-4 border rounded py-2 px-3"
+    >
+      <option value={junctions.femaleStraigth}>tout droit - femelle</option>
+      <option value={junctions.maleStraigth}>angle/tout droit - mâle</option>
+      <option value={junctions.femaleCorner}>angle - femme</option>
+    </select>
   }
+
+  return <div>
+    <label className="block mb-1">Longueur en mm :</label>
+    <input
+      className="block w-full mb-4 border rounded py-2 px-3"
+      type="number"
+      value={props.length}
+      onChange={props.handleLengthChange}
+    />
+
+    <label className="block mb-1">Hauteur en mm :</label>
+    <input
+      className="block w-full mb-4 border rounded py-2 px-3"
+      type="number"
+      value={props.height}
+      onChange={props.handleHeightChange}
+    />
+
+    <label className="block mb-1">Liaison gauche :</label>
+    {renderSelect(props.leftJunction, props.handleLeftJunctionChange)}
+
+    <label className="block mb-1">Liaison droite :</label>
+    {renderSelect(props.rightJunction, props.handleRightJunctionChange)}
+  </div>
 }
 
 class App extends React.Component {
   state = {
     length: 3500,
     height: 2500,
-    leftJunction: femaleStraigthJunction,
-    rightJunction: femaleStraigthJunction,
+    leftJunction: junctions.femaleStraigth,
+    rightJunction: junctions.femaleStraigth,
     studs: [],
   };
 
@@ -127,13 +167,13 @@ class App extends React.Component {
       xPosition: 145,
     }
 
-    if (leftJunction == maleStraigthJunction && rightJunction == maleStraigthJunction) {
+    if (leftJunction == junctions.maleStraigth && rightJunction == junctions.maleStraigth) {
       doubleTopPlate.length = length + 2 * 145;
       doubleTopPlate.xPosition = -145;
-    } else if (leftJunction == maleStraigthJunction) {
+    } else if (leftJunction == junctions.maleStraigth) {
       doubleTopPlate.length = length;
       doubleTopPlate.xPosition = -145;
-    } else if (rightJunction == maleStraigthJunction) {
+    } else if (rightJunction == junctions.maleStraigth) {
       doubleTopPlate.length = length;
       doubleTopPlate.xPosition = 145;
     }
@@ -162,7 +202,7 @@ class App extends React.Component {
     ];
     
     // common studs
-    for ( let offset = 0; offset < (rightJunction == femaleCornerJunction ? length - (145 + 45 * 2) : length); offset += 645 ) {
+    for ( let offset = 0; offset < (rightJunction == junctions.femaleCorner ? length - (145 + 45 * 2) : length); offset += 645 ) {
       studs.push({
         dimensions: [45, height - (3 * 45), 145],
         positions: [offset, 45, 0]
@@ -170,7 +210,7 @@ class App extends React.Component {
     }
 
     // left corner female junction stud
-    if (leftJunction == femaleCornerJunction) {
+    if (leftJunction == junctions.femaleCorner) {
       studs.push({
         dimensions: [145, height - (3 * 45), 45],
         positions: [45, 45, 100]
@@ -178,7 +218,7 @@ class App extends React.Component {
     }
 
     // right corner female junction stud
-    if (rightJunction == femaleCornerJunction) {
+    if (rightJunction == junctions.femaleCorner) {
       studs.push({
         dimensions: [145, height - (3 * 45), 45],
         positions: [length - (45 + 145), 45, 100]
@@ -194,44 +234,16 @@ class App extends React.Component {
         <div className="relative flex-none border-r border-solid border-gray-300">
           <div className="px-4">
             <p className="py-4 text-center text-xl">Stud 3D</p>
-
-            <label className="block mb-1">Longueur en mm :</label>
-            <input
-              className="block w-full mb-4 border rounded py-2 px-3"
-              type="number"
-              value={this.state.length}
-              onChange={this.handleLengthChange}
+            <Form 
+              height={this.state.height}
+              length={this.state.length}
+              leftJunction={this.state.leftJunction}
+              rightJunction={this.state.rightJunction}
+              handleLengthChange={this.handleLengthChange}
+              handleHeightChange={this.handleHeightChange}
+              handleLeftJunctionChange={this.handleLeftJunctionChange}
+              handleRightJunctionChange={this.handleRightJunctionChange}
             />
-
-            <label className="block mb-1">Hauteur en mm :</label>
-            <input
-              className="block w-full mb-4 border rounded py-2 px-3"
-              type="number"
-              value={this.state.height}
-              onChange={this.handleHeightChange}
-            />
-
-            <label className="block mb-1">Liaison gauche :</label>
-            <select
-              value={this.state.leftJunction}
-              onChange={this.handleLeftJunctionChange}
-              className="block w-full mb-4 border rounded py-2 px-3"
-            >
-              <option value={femaleStraigthJunction}>tout droit - femelle</option>
-              <option value={maleStraigthJunction}>angle/tout droit - mâle</option>
-              <option value={femaleCornerJunction}>angle - femme</option>
-            </select>
-
-            <label className="block mb-1">Liaison droite :</label>
-            <select
-              value={this.state.rightJunction}
-              onChange={this.handleRightJunctionChange}
-              className="block w-full mb-4 border rounded py-2 px-3"
-            >
-              <option value={femaleStraigthJunction}>tout droit - femelle</option>
-              <option value={maleStraigthJunction}>angle/tout droit - mâle</option>
-              <option value={femaleCornerJunction}>angle - femme</option>
-            </select>
           </div>
           <a href="https://github.com/fgleyze/stud3d" target="_blank" className="w-full absolute bottom-0 pb-4">
             <img className="mx-auto h-8" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMGMtNi42MjYgMC0xMiA1LjM3My0xMiAxMiAwIDUuMzAyIDMuNDM4IDkuOCA4LjIwNyAxMS4zODcuNTk5LjExMS43OTMtLjI2MS43OTMtLjU3N3YtMi4yMzRjLTMuMzM4LjcyNi00LjAzMy0xLjQxNi00LjAzMy0xLjQxNi0uNTQ2LTEuMzg3LTEuMzMzLTEuNzU2LTEuMzMzLTEuNzU2LTEuMDg5LS43NDUuMDgzLS43MjkuMDgzLS43MjkgMS4yMDUuMDg0IDEuODM5IDEuMjM3IDEuODM5IDEuMjM3IDEuMDcgMS44MzQgMi44MDcgMS4zMDQgMy40OTIuOTk3LjEwNy0uNzc1LjQxOC0xLjMwNS43NjItMS42MDQtMi42NjUtLjMwNS01LjQ2Ny0xLjMzNC01LjQ2Ny01LjkzMSAwLTEuMzExLjQ2OS0yLjM4MSAxLjIzNi0zLjIyMS0uMTI0LS4zMDMtLjUzNS0xLjUyNC4xMTctMy4xNzYgMCAwIDEuMDA4LS4zMjIgMy4zMDEgMS4yMy45NTctLjI2NiAxLjk4My0uMzk5IDMuMDAzLS40MDQgMS4wMi4wMDUgMi4wNDcuMTM4IDMuMDA2LjQwNCAyLjI5MS0xLjU1MiAzLjI5Ny0xLjIzIDMuMjk3LTEuMjMuNjUzIDEuNjUzLjI0MiAyLjg3NC4xMTggMy4xNzYuNzcuODQgMS4yMzUgMS45MTEgMS4yMzUgMy4yMjEgMCA0LjYwOS0yLjgwNyA1LjYyNC01LjQ3OSA1LjkyMS40My4zNzIuODIzIDEuMTAyLjgyMyAyLjIyMnYzLjI5M2MwIC4zMTkuMTkyLjY5NC44MDEuNTc2IDQuNzY1LTEuNTg5IDguMTk5LTYuMDg2IDguMTk5LTExLjM4NiAwLTYuNjI3LTUuMzczLTEyLTEyLTEyeiIvPjwvc3ZnPg=="></img>
