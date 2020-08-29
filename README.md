@@ -1,6 +1,6 @@
 # Stud3D
 
- This WIP project generates 3D walls for wooden frame houses.
+ This WIP project generates 3D walls for timber frame houses. [You can test it here](http://fgleyze.com/stud3d/)
 
  # Bootstrap
 
