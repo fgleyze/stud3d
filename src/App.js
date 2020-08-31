@@ -12,7 +12,6 @@ const junctions = {
   femaleCorner: 2,
 }
 
-
 function Controls(props) {
   const controls = useRef()
   const { camera, gl } = useThree()
@@ -80,10 +79,11 @@ function Canvas3d(props) {
 }
 
 function Form(props) {
-  function renderSelect(junction, handleJunctionChange) {
+  function renderSelect(name, value, handleWallChange) {
     return   <select
-      value={junction}
-      onChange={handleJunctionChange}
+      name={name}
+      value={value}
+      onChange={handleWallChange}
       className="block w-full mb-4 border rounded py-2 px-3"
     >
       <option value={junctions.femaleStraigth}>tout droit - femelle</option>
@@ -97,23 +97,25 @@ function Form(props) {
     <input
       className="block w-full mb-4 border rounded py-2 px-3"
       type="number"
-      value={props.length}
-      onChange={props.handleLengthChange}
+      name="length"
+      value={props.wall.length}
+      onChange={props.handleWallChange}
     />
 
     <label className="block mb-1">Hauteur en mm :</label>
     <input
       className="block w-full mb-4 border rounded py-2 px-3"
       type="number"
-      value={props.height}
-      onChange={props.handleHeightChange}
+      name="height"
+      value={props.wall.height}
+      onChange={props.handleWallChange}
     />
 
     <label className="block mb-1">Liaison gauche :</label>
-    {renderSelect(props.leftJunction, props.handleLeftJunctionChange)}
+    {renderSelect("leftJunction", props.wall.leftJunction, props.handleWallChange)}
 
     <label className="block mb-1">Liaison droite :</label>
-    {renderSelect(props.rightJunction, props.handleRightJunctionChange)}
+    {renderSelect("rightJunction", props.wall.rightJunction, props.handleWallChange)}
   </div>
 }
 
@@ -131,62 +133,52 @@ function StudSections(props) {
 
 class App extends React.Component {
   state = {
-    length: 3500,
-    height: 2500,
-    leftJunction: junctions.femaleStraigth,
-    rightJunction: junctions.femaleStraigth,
+    wall: {
+      length: 3500,
+      height: 2500,
+      leftJunction: junctions.femaleStraigth,
+      rightJunction: junctions.femaleStraigth,
+    },
     studs: [],
   };
 
   componentDidMount() {
     this.setState({ 
-      studs: this.prepareStuds(this.state.length, this.state.height, this.state.leftJunction, this.state.rightJunction)
+      studs: this.calculateWallStuds(this.state.wall)
     });
  }
 
-  handleLengthChange = event => {
+  handleWallChange = event => {
+    const wall = Object.assign({}, this.state.wall);
+    wall[event.target.name] = event.target.value;
+
     this.setState({ 
-      length: event.target.value,
-      studs: this.prepareStuds(event.target.value, this.state.height, this.state.leftJunction, this.state.rightJunction)
+      wall,
+      studs: this.calculateWallStuds(wall)
     });
   };
 
-  handleHeightChange = event => {
-    this.setState({ 
-      height: event.target.value,
-      studs: this.prepareStuds( this.state.length, event.target.value, this.state.leftJunction, this.state.rightJunction)
-    });
-  };
+  calculateWallStuds(wall) {
+    const length = wall.length ;
+    const height = wall.height ;
+    const leftJunction = wall.leftJunction ;
+    const rightJunction = wall.rightJunction ;
 
-  handleLeftJunctionChange = event => {
-    this.setState({ 
-      leftJunction: event.target.value,
-      studs: this.prepareStuds(this.state.length, this.state.height, event.target.value, this.state.rightJunction)
-    });
-  };
-
-  handleRightJunctionChange = event => {
-    this.setState({ 
-      rightJunction: event.target.value,
-      studs: this.prepareStuds(this.state.length, this.state.height, this.state.leftJunction, event.target.value)
-    });
-  };
-
-  prepareStuds(length, height, leftJunction, rightJunction) {
     const doubleTopPlate = {
       length: length - 2 * 145,
-      xPosition: 145,
+      positionX: 145,
     }
 
+    // calculate double top plate lenght
     if (leftJunction == junctions.maleStraigth && rightJunction == junctions.maleStraigth) {
       doubleTopPlate.length = length + 2 * 145;
-      doubleTopPlate.xPosition = -145;
+      doubleTopPlate.positionX = -145;
     } else if (leftJunction == junctions.maleStraigth) {
       doubleTopPlate.length = length;
-      doubleTopPlate.xPosition = -145;
+      doubleTopPlate.positionX = -145;
     } else if (rightJunction == junctions.maleStraigth) {
       doubleTopPlate.length = length;
-      doubleTopPlate.xPosition = 145;
+      doubleTopPlate.positionX = 145;
     }
 
     let studs = [
@@ -203,7 +195,7 @@ class App extends React.Component {
       // double top plate
       {
         dimensions: [doubleTopPlate.length, 45, 145],
-        positions: [doubleTopPlate.xPosition, height - 45, 0],
+        positions: [doubleTopPlate.positionX, height - 45, 0],
       },
       // last common stud
       {
@@ -246,14 +238,8 @@ class App extends React.Component {
           <div className="px-4">
             <p className="py-4 text-center text-xl">Stud 3D</p>
             <Form 
-              height={this.state.height}
-              length={this.state.length}
-              leftJunction={this.state.leftJunction}
-              rightJunction={this.state.rightJunction}
-              handleLengthChange={this.handleLengthChange}
-              handleHeightChange={this.handleHeightChange}
-              handleLeftJunctionChange={this.handleLeftJunctionChange}
-              handleRightJunctionChange={this.handleRightJunctionChange}
+              wall={this.state.wall}
+              handleWallChange={this.handleWallChange}
             />
           </div>
           <a href="https://github.com/fgleyze/stud3d" target="_blank" className="w-full absolute bottom-0 pb-4">
@@ -262,11 +248,9 @@ class App extends React.Component {
         </div>
         <div className="flex-1 h-screen">
           <Canvas3d
-            height={this.state.height}
-            length={this.state.length}
+            height={this.state.wall.height}
+            length={this.state.wall.length}
             studs={this.state.studs}
-            leftJunction={this.state.leftJunction}
-            rightJunction={this.state.rightJunction}
           />
         </div>
         <div className="relative flex-none border-l border-solid border-gray-300">
