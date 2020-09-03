@@ -97,25 +97,49 @@ function WallForm(props) {
     </select>
   }
 
+  const defaultMinHeight = 45 * 3;
+
   return <div>
-    <h1 className="text-lg mb-2">Mur</h1>
+    <h1 className="text-lg font-bold mb-2">Mur</h1>
 
     <label className="block mb-1">Longueur en mm :</label>
     <input
-      className="block w-full mb-4 border rounded py-2 px-3"
+      className="block w-full border rounded py-2 px-3"
       type="number"
       name="length"
       value={props.wall.length}
       onChange={props.handleWallChange}
+      min={600}
+      max={6000}
+    />
+    <input 
+      className="block w-full my-2 mb-4"
+      type="range"
+      name="length"
+      value={props.wall.length}
+      onChange={props.handleWallChange}
+      min={props.opening.leftDistance + props.opening.length + (3 * 45)}
+      max={6000}
     />
 
     <label className="block mb-1">Hauteur en mm :</label>
     <input
-      className="block w-full mb-4 border rounded py-2 px-3"
+      className="block w-full border rounded py-2 px-3"
       type="number"
       name="height"
       value={props.wall.height}
       onChange={props.handleWallChange}
+      min={props.opening.sill + props.opening.height + 45 + 45 + 145}
+      max={4000}
+    />
+    <input 
+      className="block w-full my-2 mb-4"
+      type="range"
+      name="height"
+      value={props.wall.height}
+      onChange={props.handleWallChange}
+      min={props.opening.sill + props.opening.height + 45 + 45 + 145}
+      max={4000}
     />
 
     <label className="block mb-1">Liaison gauche :</label>
@@ -128,7 +152,7 @@ function WallForm(props) {
 
 function OpeningForm(props) {
   return <div>
-    <h1 className="text-lg mb-2">Ouverture</h1>
+    <h1 className="text-lg font-bold mb-2">Ouverture</h1>
 
     <label className="block mb-1">Largeur en mm :</label>
     <input
@@ -138,32 +162,70 @@ function OpeningForm(props) {
       value={props.opening.length}
       onChange={props.handleOpeningChange}
     />
-
-    <label className="block mb-1">Hauteur en mm :</label>
-    <input
-      className="block w-full mb-4 border rounded py-2 px-3"
-      type="number"
-      name="height"
-      value={props.opening.height}
+    <input 
+      className="block w-full my-2"
+      type="range"
+      name="length"
+      value={props.opening.length}
       onChange={props.handleOpeningChange}
+      min={45}
+      max={props.wall.length - (props.opening.leftDistance + 3 * 45)}
     />
 
     <label className="block mb-1">Décalage en mm :</label>
     <input
-      className="block w-full mb-4 border rounded py-2 px-3"
+      className="block w-full border rounded py-2 px-3"
       type="number"
       name="leftDistance"
       value={props.opening.leftDistance}
       onChange={props.handleOpeningChange}
     />
+    <input 
+      className="block w-full my-2"
+      type="range"
+      name="leftDistance"
+      value={props.opening.leftDistance}
+      onChange={props.handleOpeningChange}
+      min={3 * 45}
+      max={props.wall.length - (props.opening.length + 3 * 45)}
+    />
+
+
+    <label className="block mb-1">Hauteur en mm :</label>
+    <input
+      className="block w-full border rounded py-2 px-3"
+      type="number"
+      name="height"
+      value={props.opening.height}
+      onChange={props.handleOpeningChange}
+    />
+    <input 
+      className="block w-full my-2"
+      type="range"
+      name="height"
+      value={props.opening.height}
+      onChange={props.handleOpeningChange}
+      min={200}
+      max={props.wall.height - (props.opening.sill + 45 + 45 + 145)}
+    />
 
     <label className="block mb-1">Hauteur d'allège en mm :</label>
     <input
-      className="block w-full mb-4 border rounded py-2 px-3"
+      className="block w-full mb-1 border rounded py-2 px-3"
       type="number"
       name="sill"
       value={props.opening.sill}
       onChange={props.handleOpeningChange}
+      min={45}
+    />
+    <input 
+      className="block w-full my-2"
+      type="range"
+      name="sill"
+      value={props.opening.sill}
+      onChange={props.handleOpeningChange}
+      min={45}
+      max={props.wall.height - (props.opening.height + 45 + 45 + 145)}
     />
   </div>
 }
@@ -292,7 +354,7 @@ class App extends React.Component {
     ];
     
     // common studs
-    for ( let offset = 0; offset < (rightJunction == junctions.femaleCorner ? length - (145 + 45 * 2) : length); offset += 645 ) {
+    for ( let offset = 0; offset < (rightJunction == junctions.femaleCorner ? length - (145 + 45 * 2) : length - (2 * 45)); offset += 645 ) {
       studs.push({
         dimensions: [45, height - (3 * 45), 145],
         positions: [offset, 45, 0],
@@ -449,16 +511,18 @@ class App extends React.Component {
             <p className="py-4 text-center text-xl">Stud 3D</p>
             <WallForm 
               wall={this.state.wall}
+              opening={this.state.opening}
               handleWallChange={this.handleWallChange}
             />
             <OpeningForm 
+              wall={this.state.wall}
               opening={this.state.opening}
               handleOpeningChange={this.handleOpeningChange}
             />
           </div>
-          <a href="https://github.com/fgleyze/stud3d" target="_blank" className="w-full absolute bottom-0 pb-4">
+{/*           <a href="https://github.com/fgleyze/stud3d" target="_blank" className="w-full absolute bottom-0 pb-4">
             <img className="mx-auto h-8" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMGMtNi42MjYgMC0xMiA1LjM3My0xMiAxMiAwIDUuMzAyIDMuNDM4IDkuOCA4LjIwNyAxMS4zODcuNTk5LjExMS43OTMtLjI2MS43OTMtLjU3N3YtMi4yMzRjLTMuMzM4LjcyNi00LjAzMy0xLjQxNi00LjAzMy0xLjQxNi0uNTQ2LTEuMzg3LTEuMzMzLTEuNzU2LTEuMzMzLTEuNzU2LTEuMDg5LS43NDUuMDgzLS43MjkuMDgzLS43MjkgMS4yMDUuMDg0IDEuODM5IDEuMjM3IDEuODM5IDEuMjM3IDEuMDcgMS44MzQgMi44MDcgMS4zMDQgMy40OTIuOTk3LjEwNy0uNzc1LjQxOC0xLjMwNS43NjItMS42MDQtMi42NjUtLjMwNS01LjQ2Ny0xLjMzNC01LjQ2Ny01LjkzMSAwLTEuMzExLjQ2OS0yLjM4MSAxLjIzNi0zLjIyMS0uMTI0LS4zMDMtLjUzNS0xLjUyNC4xMTctMy4xNzYgMCAwIDEuMDA4LS4zMjIgMy4zMDEgMS4yMy45NTctLjI2NiAxLjk4My0uMzk5IDMuMDAzLS40MDQgMS4wMi4wMDUgMi4wNDcuMTM4IDMuMDA2LjQwNCAyLjI5MS0xLjU1MiAzLjI5Ny0xLjIzIDMuMjk3LTEuMjMuNjUzIDEuNjUzLjI0MiAyLjg3NC4xMTggMy4xNzYuNzcuODQgMS4yMzUgMS45MTEgMS4yMzUgMy4yMjEgMCA0LjYwOS0yLjgwNyA1LjYyNC01LjQ3OSA1LjkyMS40My4zNzIuODIzIDEuMTAyLjgyMyAyLjIyMnYzLjI5M2MwIC4zMTkuMTkyLjY5NC44MDEuNTc2IDQuNzY1LTEuNTg5IDguMTk5LTYuMDg2IDguMTk5LTExLjM4NiAwLTYuNjI3LTUuMzczLTEyLTEyLTEyeiIvPjwvc3ZnPg=="></img>
-          </a>
+          </a> */}
         </div>
         <div className="flex-1 h-screen">
           <Canvas3d
