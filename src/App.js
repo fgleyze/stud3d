@@ -1,10 +1,6 @@
-import React, { useRef, useState, useMemo } from 'react'
+import React from 'react'
+import Canvas3d from './Canvas3d.js';
 import './App.css';
-import { extend, Canvas, useFrame, useThree, createPortal } from 'react-three-fiber';
-import { OrbitControls } from "three-orbitcontrols";
-import { BoxBufferGeometry } from 'three';
-
-extend({ OrbitControls });
 
 const junctions = {
   femaleStraigth: 0,
@@ -14,73 +10,8 @@ const junctions = {
 
 const studTypes = {
   commonStud: "commonStud",
+  bottomPlate: "bottomPlate",
   other: "other",
-}
-
-function Controls(props) {
-  const controls = useRef()
-  const { camera, gl } = useThree()
-  useFrame(() => controls.current.update())
-  return <orbitControls ref={controls} args={[camera, gl.domElement]} />
-}
-
-function Stud(props) {
-  const mesh = useRef()
-  const [hovered, setHover] = useState(false)
-
-  let positions = [];
-  const resetPositions = props.dimensions.map(coor => coor / 2)
-
-  for (var i = 0; i < props.dimensions.map(coor => coor / 2).length; i++) {
-    positions.push(props.positions[i] + resetPositions[i])
-  }
-
-  const scaledDimensions = props.dimensions.map(coor => coor / 100);
-
-  // https://github.com/react-spring/react-three-fiber/issues/250
-  const geom = useMemo(() => new BoxBufferGeometry(
-    scaledDimensions[0], 
-    scaledDimensions[1], 
-    scaledDimensions[2])
-  )
-
-  return (
-    <group position={positions.map(coor => coor / 100)}>
-      <lineSegments>
-        <edgesGeometry attach="geometry" args={[geom]} />
-        <lineBasicMaterial color="black" attach="material" />
-      </lineSegments>
-      <mesh
-        ref={mesh}
-        onPointerOver={(e) => setHover(true)}
-        onPointerOut={(e) => setHover(false)}
-      >
-        <boxBufferGeometry attach="geometry" args={props.dimensions.map(coor => coor / 100)} />
-        <meshStandardMaterial attach="material" color={hovered ? 'red' : 'orange'} />
-      </mesh>
-    </group>
-  )
-}
-
-function Canvas3d(props) {  
-    const wallDimensions = [props.length, props.height, 145];
-
-    let renderedStuds = [];
-
-    for (let stud of props.studs) {
-      renderedStuds.push(<Stud dimensions={stud.dimensions} positions={stud.positions}/>)
-    }
-
-    return <Canvas camera={{ position: [-12, 0, 30] }}>
-      <Controls />
-      <axesHelper/>
-      <pointLight position={[150, 140, 100]} />
-      <pointLight position={[-150, -140, -100]} />
-      <group position={wallDimensions.map(coor => -Math.abs(coor / 100 / 2))}>
-        //studs
-        {renderedStuds}
-      </group>
-    </Canvas>
 }
 
 function WallForm(props) {
@@ -96,8 +27,6 @@ function WallForm(props) {
       <option value={junctions.femaleCorner}>angle - femme</option>
     </select>
   }
-
-  const defaultMinHeight = 45 * 3;
 
   return <div>
     <h1 className="text-lg font-bold mb-2">Mur</h1>
@@ -154,6 +83,15 @@ function OpeningForm(props) {
   return <div>
     <h1 className="text-lg font-bold mb-2">Ouverture</h1>
 
+    <label>
+      Porte ? 
+      <input
+        name="door"
+        type="checkbox"
+        checked={props.opening.isDoor}
+        onChange={props.handleDoorChange} />
+    </label>
+
     <label className="block mb-1">Largeur en mm :</label>
     <input
       className="block w-full border rounded py-2 px-3"
@@ -209,24 +147,26 @@ function OpeningForm(props) {
       max={props.wall.height - (props.opening.sill + 45 + 45 + 145)}
     />
 
-    <label className="block mb-1">Hauteur d'allège en mm :</label>
-    <input
-      className="block w-full mb-1 border rounded py-2 px-3"
-      type="number"
-      name="sill"
-      value={props.opening.sill}
-      onChange={props.handleOpeningChange}
-      min={45}
-    />
-    <input 
-      className="block w-full my-2"
-      type="range"
-      name="sill"
-      value={props.opening.sill}
-      onChange={props.handleOpeningChange}
-      min={45}
-      max={props.wall.height - (props.opening.height + 45 + 45 + 145)}
-    />
+    {!props.opening.isDoor && <div>
+      <label className="block mb-1">Hauteur d'allège en mm :</label>
+      <input
+        className="block w-full mb-1 border rounded py-2 px-3"
+        type="number"
+        name="sill"
+        value={props.opening.sill}
+        onChange={props.handleOpeningChange}
+        min={45}
+      />
+      <input 
+        className="block w-full my-2"
+        type="range"
+        name="sill"
+        value={props.opening.sill}
+        onChange={props.handleOpeningChange}
+        min={45}
+        max={props.wall.height - (props.opening.height + 45 + 45 + 145)}
+      />
+    </div>}
   </div>
 }
 
@@ -243,47 +183,58 @@ function StudSections(props) {
 }
 
 class App extends React.Component {
+  defaultSill = 1000;
+
+  defaultOpening = {
+    isDoor: false,
+    leftDistance: 680,
+    length: 800,
+    height: 950,
+    sill: this.defaultSill,
+  };
+
   state = {
     wall: {
       length: 3500,
       height: 2500,
       leftJunction: junctions.femaleStraigth,
       rightJunction: junctions.femaleStraigth,
+      hasOpening: false,
     },
-    opening: {
-      leftDistance: 680,
-      length: 800,
-      height: 950,
-      sill: 500,
-    },
-    studs: [],
+    opening: this.defaultOpening,
+    wallStuds: [],
+    openingStuds: [],
   };
 
   componentDidMount() {
-    let studs = this.calculateOpeningStuds(
-      this.calculateWallStuds(this.state.wall), 
-      this.state.opening, 
-      this.state.wall
-    );
+    let wallStuds = calculateWallStuds(this.state.wall);
+
+    let openingStuds = [];
+
+    if (this.state.wall.hasOpening) {
+      openingStuds = calculateOpeningStuds(this.state.opening, this.state.wall);
+      adaptWallStudsToOpening(wallStuds, this.state.wall, this.state.opening);
+    }
 
     this.setState({ 
-      studs,
+      wallStuds,
+      openingStuds,
     });
  }
 
-  handleWallChange = event => {
+   handleWallChange = event => {
     const wall = Object.assign({}, this.state.wall);
     wall[event.target.name] = parseInt(event.target.value);
 
-    let studs = this.calculateOpeningStuds(
-      this.calculateWallStuds(wall), 
-      this.state.opening, 
-      wall
-    );
+    let wallStuds = calculateWallStuds(wall);
+    let openingStuds = calculateOpeningStuds(this.state.opening, wall);
+
+    adaptWallStudsToOpening(wallStuds, wall, this.state.opening);
 
     this.setState({ 
       wall,
-      studs
+      openingStuds,
+      wallStuds
     });
   };
 
@@ -291,216 +242,69 @@ class App extends React.Component {
     const opening = Object.assign({}, this.state.opening);
     opening[event.target.name] = parseInt(event.target.value);
 
-    let studs = this.calculateOpeningStuds(
-      this.calculateWallStuds(this.state.wall), 
-      opening, 
-      this.state.wall
-    );
+    let wallStuds = calculateWallStuds(this.state.wall);
+    let openingStuds = calculateOpeningStuds(opening, this.state.wall);
+
+    wallStuds = adaptWallStudsToOpening(wallStuds, this.state.wall, opening);
 
     this.setState({ 
       opening,
-      studs
+      wallStuds,
+      openingStuds
     });
   };
 
-  calculateWallStuds(wall) {
-    const length = wall.length ;
-    const height = wall.height ;
-    const leftJunction = wall.leftJunction ;
-    const rightJunction = wall.rightJunction ;
-
-    const doubleTopPlate = {
-      length: length - 2 * 145,
-      positionX: 145,
-    }
-
-    // calculate double top plate length
-    if (leftJunction == junctions.maleStraigth && rightJunction == junctions.maleStraigth) {
-      doubleTopPlate.length = length + 2 * 145;
-      doubleTopPlate.positionX = -145;
-    } else if (leftJunction == junctions.maleStraigth) {
-      doubleTopPlate.length = length;
-      doubleTopPlate.positionX = -145;
-    } else if (rightJunction == junctions.maleStraigth) {
-      doubleTopPlate.length = length;
-      doubleTopPlate.positionX = 145;
-    }
-
-    let studs = [
-      // bottom plate
-      {
-        dimensions: [length, 45, 145],
-        positions: [0, 0, 0],
-        type: studTypes.other,
-      },
-      // top plate
-      {
-        dimensions: [length, 45, 145],
-        positions: [0, height - (2 * 45), 0],
-        type: studTypes.other,
-      },
-      // double top plate
-      {
-        dimensions: [doubleTopPlate.length, 45, 145],
-        positions: [doubleTopPlate.positionX, height - 45, 0],
-        type: studTypes.other,
-      },
-      // last common stud
-      {
-        dimensions: [45, height - (3 * 45), 145],
-        positions: [length - 45, 45, 0],
-        type: studTypes.other,
-      },
-    ];
+  handleDoorChange = event => {
+    const opening = Object.assign({}, this.state.opening);
+    opening.isDoor = event.target.checked;
     
-    // common studs
-    for ( let offset = 0; offset < (rightJunction == junctions.femaleCorner ? length - (145 + 45 * 2) : length - (2 * 45)); offset += 645 ) {
-      studs.push({
-        dimensions: [45, height - (3 * 45), 145],
-        positions: [offset, 45, 0],
-        type: studTypes.commonStud,
-      })
+    if (event.target.checked) {
+      opening.height = this.state.wall.height - (2*45 + 145);
+      opening.sill = 0;
+    } else {
+      const globalHeight = this.state.wall.height - (2*45 + 145);
+      opening.height = Math.round(globalHeight / 2 - 1);
+      opening.sill = Math.round(globalHeight / 2);
     }
+    
+    let wallStuds = calculateWallStuds(this.state.wall);
+    let openingStuds = calculateOpeningStuds(opening, this.state.wall);
 
-    // left corner female junction stud
-    if (leftJunction == junctions.femaleCorner) {
-      studs.push({
-        dimensions: [145, height - (3 * 45), 45],
-        positions: [45, 45, 100],
-        type: studTypes.other,
-      });
-    }
+    wallStuds = adaptWallStudsToOpening(wallStuds, this.state.wall, opening);
 
-    // right corner female junction stud
-    if (rightJunction == junctions.femaleCorner) {
-      studs.push({
-        dimensions: [145, height - (3 * 45), 45],
-        positions: [length - (45 + 145), 45, 100],
-        type: studTypes.other,
-      });
-    }
+    this.setState({ 
+      opening,
+      wallStuds,
+      openingStuds
+    });
+  };
 
-    return studs;
+  addWallOpening() {
+    const wall = Object.assign({}, this.state.wall);
+    wall.hasOpening = true;
+
+    let openingStuds = calculateOpeningStuds(this.state.opening, this.state.wall);
+    let wallStuds = adaptWallStudsToOpening(this.state.wallStuds, this.state.wall, this.state.opening);
+
+    this.setState({ 
+      wall,
+      wallStuds,
+      openingStuds
+    });
   }
 
-  calculateOpeningStuds(studs, opening, wall) {
-    const wallHeight = wall.height ;
-    const leftDistance = opening.leftDistance;
-    const length = opening.length;
-    const height = opening.height;
-    const sill = opening.sill;
+  removeWallOpening() {
+    const wall = Object.assign({}, this.state.wall);
+    wall.hasOpening = false;
+  
+    let wallStuds = calculateWallStuds(this.state.wall);
 
-    studs.push(...[
-      // left king stud
-      {
-        dimensions: [45, wallHeight - (3 * 45), 145],
-        positions: [leftDistance - (45 * 2), 45, 0],
-        type: studTypes.other,
-      },
-      // right king stud
-      {
-        dimensions: [45, wallHeight - (3 * 45), 145],
-        positions: [leftDistance + length + 45, 45, 0],
-        type: studTypes.other,
-      },
-      // header 1
-      {
-        dimensions: [length + (45 * 2), 145, 45],
-        positions: [leftDistance - 45, sill + height, 0],
-        type: studTypes.other,
-      },
-      // header 2
-      {
-        dimensions: [length + (45 * 2), 145, 45],
-        positions: [leftDistance - 45, sill + height, 45],
-        type: studTypes.other,
-      },
-      // header 3
-      {
-        dimensions: [length + (45 * 2), 145, 45],
-        positions: [leftDistance - 45, sill + height, 45 * 2],
-        type: studTypes.other,
-      },
-      // left trimmer stud
-      {
-        dimensions: [45, height, 145],
-        positions: [leftDistance - 45, sill, 0],
-        type: studTypes.other,
-      },
-      // left top trimmer stud
-      {
-        dimensions: [45, wallHeight - (sill + height + (2 * 45) + 145), 145],
-        positions: [leftDistance - 45, sill + height + 145, 0],
-        type: studTypes.other,
-      },
-      // right trimmer stud
-      {
-        dimensions: [45, height, 145],
-        positions: [leftDistance + length, sill, 0],
-        type: studTypes.other,
-      },
-      // right top trimmer stud
-      {
-        dimensions: [45, wallHeight - (sill + height + (2 * 45) + 145), 145],
-        positions: [leftDistance + length, sill + height + 145, 0],
-        type: studTypes.other,
-      },
-    ]);
-
-    // sill
-    if (sill > 45 && sill < (2 * 45)) {
-      studs.push({
-        dimensions: [length + (45 * 2), sill, 145],
-        positions: [leftDistance - 45, sill - 45, 0],
-        type: studTypes.other,
-      })
-    } else if (sill > (2 * 45)) {
-      studs.push({
-        dimensions: [length + (45 * 2), 45, 145],
-        positions: [leftDistance - 45, sill - 45, 0],
-        type: studTypes.other,
-      })
-    }
-
-    if (sill > 45) {
-      // left lower trimmer stud
-      studs.push(...[{
-        dimensions: [45, sill - (2 * 45), 145],
-        positions: [leftDistance - 45, 45, 0],
-        type: studTypes.other,
-      },
-      // right lower trimmer stud
-      {
-        dimensions: [45, sill - (2 * 45), 145],
-        positions: [leftDistance + length, 45, 0],
-        type: studTypes.other,
-      }])
-    }
-
-    // remove or replace overlapping commn studs
-    // https://stackoverflow.com/questions/24812930/how-to-remove-element-from-array-in-foreach-loop
-    studs.reduceRight(function (acc, stud, key, object) {
-      if (stud.type === studTypes.commonStud && stud.positions[0] > leftDistance - (3 * 45) && stud.positions[0] < leftDistance
-      || stud.type === studTypes.commonStud && stud.positions[0] > (leftDistance + length) - (45) && stud.positions[0] < (leftDistance + length) + (2 * 45)) {
-        object.splice(key, 1);
-      } else if (stud.type === studTypes.commonStud && stud.positions[0] >= leftDistance - (2 * 45) && stud.positions[0] <= (leftDistance + length + 45)) {
-        //top jack studs
-        let topJackStud = JSON.parse(JSON.stringify(object[key]));
-        topJackStud.dimensions[1] = wallHeight - (sill + height + 145 + (2 * 45));
-        topJackStud.positions[1] = sill + height + 145;
-        object.push(topJackStud);
-
-        if (sill <= 45) {
-          object.splice(key, 1);
-        } else {
-          //bottom jack studs
-          let bottomJackStud = JSON.parse(JSON.stringify(object[key]));
-          bottomJackStud.dimensions[1] = sill - (2 * 45);
-          object[key] = bottomJackStud;
-        }
-      }
+    this.setState({ 
+      wall,
+      opening: this.defaultOpening, 
+      openingStuds: [],
+      wallStuds
     });
-    return studs;
   }
 
   render() {
@@ -514,11 +318,24 @@ class App extends React.Component {
               opening={this.state.opening}
               handleWallChange={this.handleWallChange}
             />
-            <OpeningForm 
+            {this.state.wall.hasOpening ? <button 
+              class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4" 
+              type="button"
+              onClick={() => {this.removeWallOpening(this.state.wall)}}
+            > supprimer l'ouverture
+            </button> : <button 
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4" 
+              type="button"
+              onClick={() => {this.addWallOpening(this.state.wall)}}
+            >Ajouter une ouverture
+            </button>}
+              
+            {this.state.wall.hasOpening && <OpeningForm 
               wall={this.state.wall}
               opening={this.state.opening}
               handleOpeningChange={this.handleOpeningChange}
-            />
+              handleDoorChange={this.handleDoorChange}
+            />}
           </div>
 {/*           <a href="https://github.com/fgleyze/stud3d" target="_blank" className="w-full absolute bottom-0 pb-4">
             <img className="mx-auto h-8" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMGMtNi42MjYgMC0xMiA1LjM3My0xMiAxMiAwIDUuMzAyIDMuNDM4IDkuOCA4LjIwNyAxMS4zODcuNTk5LjExMS43OTMtLjI2MS43OTMtLjU3N3YtMi4yMzRjLTMuMzM4LjcyNi00LjAzMy0xLjQxNi00LjAzMy0xLjQxNi0uNTQ2LTEuMzg3LTEuMzMzLTEuNzU2LTEuMzMzLTEuNzU2LTEuMDg5LS43NDUuMDgzLS43MjkuMDgzLS43MjkgMS4yMDUuMDg0IDEuODM5IDEuMjM3IDEuODM5IDEuMjM3IDEuMDcgMS44MzQgMi44MDcgMS4zMDQgMy40OTIuOTk3LjEwNy0uNzc1LjQxOC0xLjMwNS43NjItMS42MDQtMi42NjUtLjMwNS01LjQ2Ny0xLjMzNC01LjQ2Ny01LjkzMSAwLTEuMzExLjQ2OS0yLjM4MSAxLjIzNi0zLjIyMS0uMTI0LS4zMDMtLjUzNS0xLjUyNC4xMTctMy4xNzYgMCAwIDEuMDA4LS4zMjIgMy4zMDEgMS4yMy45NTctLjI2NiAxLjk4My0uMzk5IDMuMDAzLS40MDQgMS4wMi4wMDUgMi4wNDcuMTM4IDMuMDA2LjQwNCAyLjI5MS0xLjU1MiAzLjI5Ny0xLjIzIDMuMjk3LTEuMjMuNjUzIDEuNjUzLjI0MiAyLjg3NC4xMTggMy4xNzYuNzcuODQgMS4yMzUgMS45MTEgMS4yMzUgMy4yMjEgMCA0LjYwOS0yLjgwNyA1LjYyNC01LjQ3OSA1LjkyMS40My4zNzIuODIzIDEuMTAyLjgyMyAyLjIyMnYzLjI5M2MwIC4zMTkuMTkyLjY5NC44MDEuNTc2IDQuNzY1LTEuNTg5IDguMTk5LTYuMDg2IDguMTk5LTExLjM4NiAwLTYuNjI3LTUuMzczLTEyLTEyLTEyeiIvPjwvc3ZnPg=="></img>
@@ -528,18 +345,246 @@ class App extends React.Component {
           <Canvas3d
             height={this.state.wall.height}
             length={this.state.wall.length}
-            studs={this.state.studs}
+            studs={this.state.wallStuds.concat(this.state.openingStuds)}
           />
         </div>
         <div className="relative flex-none border-l border-solid border-gray-300">
           <div className="px-4">
             <p className="py-4 text-center text-xl">Sections</p>
-              <StudSections studs={this.state.studs} />
+              <StudSections studs={this.state.wallStuds.concat(this.state.openingStuds)} />
           </div>
         </div>
       </div>
     );
   }
+}
+
+function calculateWallStuds(wall) {
+  const length = wall.length ;
+  const height = wall.height ;
+  const leftJunction = wall.leftJunction ;
+  const rightJunction = wall.rightJunction ;
+
+  const doubleTopPlate = {
+    length: length - 2 * 145,
+    positionX: 145,
+  }
+
+  // calculate double top plate length
+  if (leftJunction == junctions.maleStraigth && rightJunction == junctions.maleStraigth) {
+    doubleTopPlate.length = length + 2 * 145;
+    doubleTopPlate.positionX = -145;
+  } else if (leftJunction == junctions.maleStraigth) {
+    doubleTopPlate.length = length;
+    doubleTopPlate.positionX = -145;
+  } else if (rightJunction == junctions.maleStraigth) {
+    doubleTopPlate.length = length;
+    doubleTopPlate.positionX = 145;
+  }
+
+  let studs = [
+    // bottom plate
+    {
+      dimensions: [length, 45, 145],
+      positions: [0, 0, 0],
+      type: studTypes.bottomPlate,
+    },
+    // top plate
+    {
+      dimensions: [length, 45, 145],
+      positions: [0, height - (2 * 45), 0],
+      type: studTypes.other,
+    },
+    // double top plate
+    {
+      dimensions: [doubleTopPlate.length, 45, 145],
+      positions: [doubleTopPlate.positionX, height - 45, 0],
+      type: studTypes.other,
+    },
+    // last common stud
+    {
+      dimensions: [45, height - (3 * 45), 145],
+      positions: [length - 45, 45, 0],
+      type: studTypes.other,
+    },
+  ];
+  
+  // common studs
+  for ( let offset = 0; offset < (rightJunction == junctions.femaleCorner ? length - (145 + 45 * 2) : length - (2 * 45)); offset += 645 ) {
+    studs.push({
+      dimensions: [45, height - (3 * 45), 145],
+      positions: [offset, 45, 0],
+      type: studTypes.commonStud,
+    })
+  }
+
+  // left corner female junction stud
+  if (leftJunction == junctions.femaleCorner) {
+    studs.push({
+      dimensions: [145, height - (3 * 45), 45],
+      positions: [45, 45, 100],
+      type: studTypes.other,
+    });
+  }
+
+  // right corner female junction stud
+  if (rightJunction == junctions.femaleCorner) {
+    studs.push({
+      dimensions: [145, height - (3 * 45), 45],
+      positions: [length - (45 + 145), 45, 100],
+      type: studTypes.other,
+    });
+  }
+
+  return studs;
+}
+
+function calculateOpeningStuds(opening, wall) {
+  const wallHeight = wall.height ;
+  const leftDistance = opening.leftDistance;
+  const length = opening.length;
+  const height = opening.height;
+  const sill = opening.sill;
+
+  let studs = [];
+
+  studs.push(...[
+    // left king stud
+    {
+      dimensions: [45, wallHeight - (3 * 45), 145],
+      positions: [leftDistance - (45 * 2), 45, 0],
+      type: studTypes.other,
+    },
+    // right king stud
+    {
+      dimensions: [45, wallHeight - (3 * 45), 145],
+      positions: [leftDistance + length + 45, 45, 0],
+      type: studTypes.other,
+    },
+    // header 1
+    {
+      dimensions: [length + (45 * 2), 145, 45],
+      positions: [leftDistance - 45, sill + height, 0],
+      type: studTypes.other,
+    },
+    // header 2
+    {
+      dimensions: [length + (45 * 2), 145, 45],
+      positions: [leftDistance - 45, sill + height, 45],
+      type: studTypes.other,
+    },
+    // header 3
+    {
+      dimensions: [length + (45 * 2), 145, 45],
+      positions: [leftDistance - 45, sill + height, 45 * 2],
+      type: studTypes.other,
+    },
+    // left trimmer stud
+    {
+      dimensions: [45, !opening.isDoor ? height : height - 45, 145],
+      positions: [leftDistance - 45, !opening.isDoor ? sill : sill + 45, 0],
+      type: studTypes.other,
+    },
+    // left top trimmer stud
+    {
+      dimensions: [45, wallHeight - (sill + height + (2 * 45) + 145), 145],
+      positions: [leftDistance - 45, sill + height + 145, 0],
+      type: studTypes.other,
+    },
+    // right trimmer stud
+    {
+      dimensions: [45, !opening.isDoor ? height : height - 45, 145],
+      positions: [leftDistance + length, !opening.isDoor ? sill : sill + 45, 0],
+      type: studTypes.other,
+    },
+    // right top trimmer stud
+    {
+      dimensions: [45, wallHeight - (sill + height + (2 * 45) + 145), 145],
+      positions: [leftDistance + length, sill + height + 145, 0],
+      type: studTypes.other,
+    },
+  ]);
+
+  // sill
+  if (sill > 45 && sill < (2 * 45)) {
+    studs.push({
+      dimensions: [length + (45 * 2), sill, 145],
+      positions: [leftDistance - 45, sill - 45, 0],
+      type: studTypes.other,
+    })
+  } else if (sill > (2 * 45)) {
+    studs.push({
+      dimensions: [length + (45 * 2), 45, 145],
+      positions: [leftDistance - 45, sill - 45, 0],
+      type: studTypes.other,
+    })
+  }
+
+  if (sill > 45) {
+    // left lower trimmer stud
+    studs.push(...[{
+      dimensions: [45, sill - (2 * 45), 145],
+      positions: [leftDistance - 45, 45, 0],
+      type: studTypes.other,
+    },
+    // right lower trimmer stud
+    {
+      dimensions: [45, sill - (2 * 45), 145],
+      positions: [leftDistance + length, 45, 0],
+      type: studTypes.other,
+    }])
+  }
+
+  return studs;
+}
+
+function adaptWallStudsToOpening(studs, wall, opening) {
+  const wallHeight = wall.height ;
+  const leftDistance = opening.leftDistance;
+  const length = opening.length;
+  const height = opening.height;
+  const sill = opening.sill;
+
+    // remove or replace overlapping common studs
+  // https://stackoverflow.com/questions/24812930/how-to-remove-element-from-array-in-foreach-loop
+  studs.reduceRight(function (acc, stud, key, object) {
+    if (stud.type === studTypes.commonStud && stud.positions[0] > leftDistance - (3 * 45) && stud.positions[0] < leftDistance
+    || stud.type === studTypes.commonStud && stud.positions[0] > (leftDistance + length) - (45) && stud.positions[0] < (leftDistance + length) + (2 * 45)) {
+      object.splice(key, 1);
+    } else if (stud.type === studTypes.commonStud && stud.positions[0] >= leftDistance - (2 * 45) && stud.positions[0] <= (leftDistance + length + 45)) {
+      //top jack studs
+      let topJackStud = JSON.parse(JSON.stringify(object[key]));
+      topJackStud.dimensions[1] = wallHeight - (sill + height + 145 + (2 * 45));
+      topJackStud.positions[1] = sill + height + 145;
+      object.push(topJackStud);
+
+      if (sill <= 45) {
+        object.splice(key, 1);
+      } else {
+        //bottom jack studs
+        let bottomJackStud = JSON.parse(JSON.stringify(object[key]));
+        bottomJackStud.dimensions[1] = sill - (2 * 45);
+        object[key] = bottomJackStud;
+      }
+    }
+  });
+
+  if (opening.isDoor) {
+    studs.forEach(function(stud, key){
+      if(stud.type === studTypes.bottomPlate) {
+        let leftBottomPlate = JSON.parse(JSON.stringify(studs[key]));
+        let rightBottomPlate = JSON.parse(JSON.stringify(studs[key]));
+        leftBottomPlate.dimensions[0] = opening.leftDistance;
+        studs[key] = leftBottomPlate;
+
+        rightBottomPlate.dimensions[0] = wall.length - (opening.leftDistance + opening.length);
+        rightBottomPlate.positions[0] = opening.leftDistance + opening.length;
+        studs.push(rightBottomPlate);
+      }
+    })
+  }
+
+  return studs;
 }
 
 export default App;
