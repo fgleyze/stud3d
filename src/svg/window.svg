@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 96 156.42" style="enable-background:new 0 0 96 156.42;" xml:space="preserve">
+<style type="text/css">
+	.window_stroke_main{fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:#000000;stroke-width:2;stroke-miterlimit:10;}
+	.window_stroke_secondary{fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:#000000;stroke-miterlimit:10;}
+</style>
+<g>
+	<rect class="window_stroke_secondary" x="13.16" y="55.84" width="33.22" height="33.22"/>
+	<path class="window_stroke_secondary" d="M46.37,52.1H13.16v-29.7c0-1.95,1.58-3.52,3.52-3.52h29.7V52.1z"/>
+	<path class="window_stroke_secondary" d="M83.33,52.1H50.11V18.89h29.7c1.95,0,3.52,1.58,3.52,3.52V52.1z"/>
+	<rect class="window_stroke_secondary" x="50.11" y="55.84"  width="33.22" height="33.22"/>
+	<path class="window_stroke_main" d="M88.94,94.8H7.55V20.71c0-4.03,3.27-7.3,7.3-7.3h66.78c4.03,0,7.3,3.27,7.3,7.3V94.8z"/>
+	<rect class="window_stroke_main" x="2.59" y="94.8"  width="91.3" height="8.09"/>
+</g>
+</svg>

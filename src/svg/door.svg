@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 96 156.42" style="enable-background:new 0 0 96 156.42;" xml:space="preserve">
+<style type="text/css">
+	.door_stroke_main{fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:#000000;stroke-width:2;stroke-miterlimit:10;}
+	.door_stroke_secondary{fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:#000000;stroke-miterlimit:10;}
+</style>
+<g>
+	<g>
+		<path d="M22.97,73.53c2.5,0,4.53,2.03,4.53,4.53s-2.03,4.53-4.53,4.53s-4.53-2.03-4.53-4.53S20.47,73.53,22.97,73.53 M22.97,72.53
+			c-3.06,0-5.53,2.48-5.53,5.53c0,3.06,2.48,5.53,5.53,5.53c3.06,0,5.53-2.48,5.53-5.53C28.5,75,26.03,72.53,22.97,72.53
+			L22.97,72.53z"/>
+	</g>
+	<path class="door_stroke_main" d="M88.95,154.04H7.56V8.21c0-3.46,2.8-6.26,6.26-6.26h68.87c3.46,0,6.26,2.8,6.26,6.26V154.04z"/>
+	<path class="door_stroke_secondary" d="M83.34,154.04H13.17V11.6c0-2.31,1.87-4.17,4.17-4.17h61.83c2.31,0,4.17,1.87,4.17,4.17V154.04z"/>
+</g>
+</svg>

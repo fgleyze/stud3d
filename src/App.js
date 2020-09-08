@@ -1,6 +1,12 @@
 import React from 'react'
 import Canvas3d from './Canvas3d.js';
 import './App.css';
+import './custom.css';
+import { ReactComponent as DoorSVG } from './svg/door.svg';
+import { ReactComponent as DoorSelectedSVG } from './svg/door_selected.svg';
+import { ReactComponent as WindowSVG } from './svg/window.svg';
+import { ReactComponent as WindowSelectedSVG } from './svg/window_selected.svg';
+
 
 const junctions = {
   femaleStraigth: 0,
@@ -82,15 +88,6 @@ function WallForm(props) {
 function OpeningForm(props) {
   return <div>
     <h1 className="text-lg font-bold mb-2">Ouverture</h1>
-
-    <label>
-      Porte ? 
-      <input
-        name="door"
-        type="checkbox"
-        checked={props.opening.isDoor}
-        onChange={props.handleDoorChange} />
-    </label>
 
     <label className="block mb-1">Largeur en mm :</label>
     <input
@@ -213,7 +210,7 @@ class App extends React.Component {
 
     if (this.state.wall.hasOpening) {
       openingStuds = calculateOpeningStuds(this.state.opening, this.state.wall);
-      adaptWallStudsToOpening(wallStuds, this.state.wall, this.state.opening);
+      wallStuds = adaptWallStudsToOpening(wallStuds, this.state.wall, this.state.opening);
     }
 
     this.setState({ 
@@ -227,9 +224,13 @@ class App extends React.Component {
     wall[event.target.name] = parseInt(event.target.value);
 
     let wallStuds = calculateWallStuds(wall);
-    let openingStuds = calculateOpeningStuds(this.state.opening, wall);
 
-    adaptWallStudsToOpening(wallStuds, wall, this.state.opening);
+    let openingStuds = [];
+
+    if (this.state.wall.hasOpening) {
+      openingStuds = calculateOpeningStuds(this.state.opening, wall);
+      wallStuds = adaptWallStudsToOpening(wallStuds.concat(openingStuds), wall, this.state.opening);
+    }
 
     this.setState({ 
       wall,
@@ -245,7 +246,7 @@ class App extends React.Component {
     let wallStuds = calculateWallStuds(this.state.wall);
     let openingStuds = calculateOpeningStuds(opening, this.state.wall);
 
-    wallStuds = adaptWallStudsToOpening(wallStuds, this.state.wall, opening);
+    wallStuds = adaptWallStudsToOpening(wallStuds.concat(openingStuds), this.state.wall, opening);
 
     this.setState({ 
       opening,
@@ -254,56 +255,60 @@ class App extends React.Component {
     });
   };
 
-  handleDoorChange = event => {
+  handleDoorChange = isDoor => {
+    const wall = Object.assign({}, this.state.wall);
     const opening = Object.assign({}, this.state.opening);
-    opening.isDoor = event.target.checked;
+    wall.hasOpening = isDoor;
+    opening.isDoor = isDoor;
     
-    if (event.target.checked) {
+    if (isDoor) {
       opening.height = this.state.wall.height - (2*45 + 145);
       opening.sill = 0;
+      wall.hasOpening = true;
     } else {
       const globalHeight = this.state.wall.height - (2*45 + 145);
       opening.height = Math.round(globalHeight / 2 - 1);
       opening.sill = Math.round(globalHeight / 2);
+      wall.hasOpening = false;
     }
     
-    let wallStuds = calculateWallStuds(this.state.wall);
-    let openingStuds = calculateOpeningStuds(opening, this.state.wall);
+    let wallStuds = calculateWallStuds(wall);
 
-    wallStuds = adaptWallStudsToOpening(wallStuds, this.state.wall, opening);
+    let openingStuds = [];
+
+    if (wall.hasOpening) {
+      let openingStuds = calculateOpeningStuds(opening, wall);
+      wallStuds = adaptWallStudsToOpening(wallStuds.concat(openingStuds), wall, opening);
+    }
 
     this.setState({ 
+      wall,
       opening,
       wallStuds,
       openingStuds
     });
   };
 
-  addWallOpening() {
+  handleWallOpening(hasOpening) {
     const wall = Object.assign({}, this.state.wall);
-    wall.hasOpening = true;
+    const opening = Object.assign({}, this.state.opening);
+    wall.hasOpening = hasOpening;
+    opening.isDoor = false;
 
-    let openingStuds = calculateOpeningStuds(this.state.opening, this.state.wall);
-    let wallStuds = adaptWallStudsToOpening(this.state.wallStuds, this.state.wall, this.state.opening);
+    let wallStuds = calculateWallStuds(wall);
+
+    let openingStuds = [];
+
+    if (wall.hasOpening) {
+      let openingStuds = calculateOpeningStuds(this.defaultOpening, wall);
+      wallStuds = adaptWallStudsToOpening(wallStuds.concat(openingStuds), wall, this.defaultOpening);
+    }
 
     this.setState({ 
       wall,
+      opening: this.defaultOpening,
       wallStuds,
       openingStuds
-    });
-  }
-
-  removeWallOpening() {
-    const wall = Object.assign({}, this.state.wall);
-    wall.hasOpening = false;
-  
-    let wallStuds = calculateWallStuds(this.state.wall);
-
-    this.setState({ 
-      wall,
-      opening: this.defaultOpening, 
-      openingStuds: [],
-      wallStuds
     });
   }
 
@@ -318,18 +323,35 @@ class App extends React.Component {
               opening={this.state.opening}
               handleWallChange={this.handleWallChange}
             />
-            {this.state.wall.hasOpening ? <button 
-              class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4" 
-              type="button"
-              onClick={() => {this.removeWallOpening(this.state.wall)}}
-            > supprimer l'ouverture
-            </button> : <button 
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4" 
-              type="button"
-              onClick={() => {this.addWallOpening(this.state.wall)}}
-            >Ajouter une ouverture
-            </button>}
-              
+            
+            <label className="block">Ouverture :</label>
+            <div className="flex">
+              <div className="flex-1 m-2 p-4 hover:bg-orange-200 rounded-lg">
+                {this.state.wall.hasOpening && this.state.opening.isDoor ? <button 
+                  className="w-full focus:outline-none"
+                  type="button"
+                  onClick={() => {this.handleDoorChange(false)}}
+                ><DoorSelectedSVG /></button> : <button
+                  className="w-full focus:outline-none"
+                  type="button"
+                  onClick={() => {this.handleDoorChange(true)}}
+                ><DoorSVG /></button>}
+              </div>
+
+              <div className="flex-1 m-2 p-4 hover:bg-orange-200 rounded-lg">
+                {this.state.wall.hasOpening && !this.state.opening.isDoor ? <button 
+                  className="w-full focus:outline-none"
+                  type="button"
+                  onClick={() => {this.handleWallOpening(false)}}
+                ><WindowSelectedSVG /></button> : <button
+                  className="w-full focus:outline-none"
+                  type="button"
+                  onClick={() => {this.handleWallOpening(true)}}
+                ><WindowSVG /></button>}
+              </div>
+            </div>
+
+
             {this.state.wall.hasOpening && <OpeningForm 
               wall={this.state.wall}
               opening={this.state.opening}
@@ -544,6 +566,8 @@ function adaptWallStudsToOpening(studs, wall, opening) {
   const length = opening.length;
   const height = opening.height;
   const sill = opening.sill;
+
+  console.log(studs);
 
     // remove or replace overlapping common studs
   // https://stackoverflow.com/questions/24812930/how-to-remove-element-from-array-in-foreach-loop

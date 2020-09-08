@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 96 156.42" style="enable-background:new 0 0 96 156.42;" xml:space="preserve">
+<style type="text/css">
+	.window_selected_color_main{fill-rule:evenodd;clip-rule:evenodd;fill:#83502E;stroke:#000000;stroke-width:2;stroke-miterlimit:10;}
+	.window_selected_color_secondary{fill-rule:evenodd;clip-rule:evenodd;fill:#BD7E4A;stroke:#000000;stroke-miterlimit:10;}
+	.window_selected_color_knob{fill:#83502E;}
+</style>
+<g>
+	<path class="window_selected_color_main" d="M88.95,154.04H7.56V8.21c0-3.46,2.8-6.26,6.26-6.26h68.87c3.46,0,6.26,2.8,6.26,6.26V154.04z"/>
+	<path class="window_selected_color_secondary" d="M83.34,154.04H13.17V11.6c0-2.31,1.87-4.17,4.17-4.17h61.83c2.31,0,4.17,1.87,4.17,4.17V154.04z"/>
+	<g>
+		<circle class="window_selected_color_knob" cx="22.97" cy="78.06" r="5.03"/>
+		<path d="M22.97,73.53c2.5,0,4.53,2.03,4.53,4.53s-2.03,4.53-4.53,4.53s-4.53-2.03-4.53-4.53S20.47,73.53,22.97,73.53 M22.97,72.53
+			c-3.06,0-5.53,2.48-5.53,5.53c0,3.06,2.48,5.53,5.53,5.53s5.53-2.48,5.53-5.53C28.5,75,26.03,72.53,22.97,72.53L22.97,72.53z"/>
+	</g>
+</g>
+</svg>
