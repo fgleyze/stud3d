@@ -88,80 +88,108 @@ function OpeningForm(props) {
   return <div>
     <h1 className="text-lg font-bold mb-2">Ouverture</h1>
 
-    <label className="block mb-1">Largeur en mm :</label>
-    <input
-      className="block w-full border rounded py-2 px-3"
-      type="number"
-      name="length"
-      value={props.opening.length}
-      onChange={props.handleOpeningChange}
-    />
-    <input 
-      className="block w-full my-2"
-      type="range"
-      name="length"
-      value={props.opening.length}
-      onChange={props.handleOpeningChange}
-      min={45}
-      max={props.wall.length - (props.opening.leftDistance + 3 * 45)}
-    />
+    <div className="flex">
+      <div className="flex-1 m-2 p-4 hover:bg-orange-200 rounded-lg">
+        {props.wall.hasOpening && props.opening.isDoor ? <button 
+          className="w-full focus:outline-none"
+          type="button"
+          onClick={() => {props.toogleDoor(false)}}
+        ><DoorSelectedSVG /></button> : <button
+          className="w-full focus:outline-none"
+          type="button"
+          onClick={() => {props.toogleDoor(true)}}
+        ><DoorSVG /></button>}
+      </div>
 
-    <label className="block mb-1">Décalage en mm :</label>
-    <input
-      className="block w-full border rounded py-2 px-3"
-      type="number"
-      name="leftDistance"
-      value={props.opening.leftDistance}
-      onChange={props.handleOpeningChange}
-    />
-    <input 
-      className="block w-full my-2"
-      type="range"
-      name="leftDistance"
-      value={props.opening.leftDistance}
-      onChange={props.handleOpeningChange}
-      min={3 * 45}
-      max={props.wall.length - (props.opening.length + 3 * 45)}
-    />
+      <div className="flex-1 m-2 p-4 hover:bg-orange-200 rounded-lg">
+        {props.wall.hasOpening && !props.opening.isDoor ? <button 
+          className="w-full focus:outline-none"
+          type="button"
+          onClick={() => {props.toogleWindow(false)}}
+        ><WindowSelectedSVG /></button> : <button
+          className="w-full focus:outline-none"
+          type="button"
+          onClick={() => {props.toogleWindow(true)}}
+        ><WindowSVG /></button>}
+      </div>
+    </div>
 
-
-    <label className="block mb-1">Hauteur en mm :</label>
-    <input
-      className="block w-full border rounded py-2 px-3"
-      type="number"
-      name="height"
-      value={props.opening.height}
-      onChange={props.handleOpeningChange}
-    />
-    <input 
-      className="block w-full my-2"
-      type="range"
-      name="height"
-      value={props.opening.height}
-      onChange={props.handleOpeningChange}
-      min={200}
-      max={props.wall.height - (props.opening.sill + 45 + 45 + 145)}
-    />
-
-    {!props.opening.isDoor && <div>
-      <label className="block mb-1">Hauteur d'allège en mm :</label>
+    {props.wall.hasOpening && <div>
+      <label className="block mb-1">Largeur en mm :</label>
       <input
-        className="block w-full mb-1 border rounded py-2 px-3"
+        className="block w-full border rounded py-2 px-3"
         type="number"
-        name="sill"
-        value={props.opening.sill}
+        name="length"
+        value={props.opening.length}
         onChange={props.handleOpeningChange}
-        min={45}
       />
       <input 
         className="block w-full my-2"
         type="range"
-        name="sill"
-        value={props.opening.sill}
+        name="length"
+        value={props.opening.length}
         onChange={props.handleOpeningChange}
         min={45}
-        max={props.wall.height - (props.opening.height + 45 + 45 + 145)}
+        max={props.wall.length - (props.opening.leftDistance + 3 * 45)}
       />
+
+      <label className="block mb-1">Décalage en mm :</label>
+      <input
+        className="block w-full border rounded py-2 px-3"
+        type="number"
+        name="leftDistance"
+        value={props.opening.leftDistance}
+        onChange={props.handleOpeningChange}
+      />
+      <input 
+        className="block w-full my-2"
+        type="range"
+        name="leftDistance"
+        value={props.opening.leftDistance}
+        onChange={props.handleOpeningChange}
+        min={3 * 45}
+        max={props.wall.length - (props.opening.length + 3 * 45)}
+      />
+
+
+      <label className="block mb-1">Hauteur en mm :</label>
+      <input
+        className="block w-full border rounded py-2 px-3"
+        type="number"
+        name="height"
+        value={props.opening.height}
+        onChange={props.handleOpeningChange}
+      />
+      <input 
+        className="block w-full my-2"
+        type="range"
+        name="height"
+        value={props.opening.height}
+        onChange={props.handleOpeningChange}
+        min={200}
+        max={props.wall.height - (props.opening.sill + 45 + 45 + 145)}
+      />
+
+      {!props.opening.isDoor && <div>
+        <label className="block mb-1">Hauteur d'allège en mm :</label>
+        <input
+          className="block w-full mb-1 border rounded py-2 px-3"
+          type="number"
+          name="sill"
+          value={props.opening.sill}
+          onChange={props.handleOpeningChange}
+          min={45}
+        />
+        <input 
+          className="block w-full my-2"
+          type="range"
+          name="sill"
+          value={props.opening.sill}
+          onChange={props.handleOpeningChange}
+          min={45}
+          max={props.wall.height - (props.opening.height + 45 + 45 + 145)}
+        />
+      </div>}
     </div>}
   </div>
 }
@@ -255,11 +283,10 @@ class App extends React.Component {
     });
   };
 
-  handleDoorChange = isDoor => {
+  toogleDoor = isDoor => {
     const wall = Object.assign({}, this.state.wall);
     const opening = Object.assign({}, this.state.opening);
-    wall.hasOpening = isDoor;
-    opening.isDoor = isDoor;
+    wall.hasOpening = opening.isDoor = isDoor;
     
     if (isDoor) {
       opening.height = this.state.wall.height - (2*45 + 145);
@@ -289,7 +316,7 @@ class App extends React.Component {
     });
   };
 
-  handleWallOpening(hasOpening) {
+  toogleWindow = hasOpening => {
     const wall = Object.assign({}, this.state.wall);
     const opening = Object.assign({}, this.state.opening);
     wall.hasOpening = hasOpening;
@@ -323,41 +350,14 @@ class App extends React.Component {
               opening={this.state.opening}
               handleWallChange={this.handleWallChange}
             />
-            
-            <label className="block">Ouverture :</label>
-            <div className="flex">
-              <div className="flex-1 m-2 p-4 hover:bg-orange-200 rounded-lg">
-                {this.state.wall.hasOpening && this.state.opening.isDoor ? <button 
-                  className="w-full focus:outline-none"
-                  type="button"
-                  onClick={() => {this.handleDoorChange(false)}}
-                ><DoorSelectedSVG /></button> : <button
-                  className="w-full focus:outline-none"
-                  type="button"
-                  onClick={() => {this.handleDoorChange(true)}}
-                ><DoorSVG /></button>}
-              </div>
 
-              <div className="flex-1 m-2 p-4 hover:bg-orange-200 rounded-lg">
-                {this.state.wall.hasOpening && !this.state.opening.isDoor ? <button 
-                  className="w-full focus:outline-none"
-                  type="button"
-                  onClick={() => {this.handleWallOpening(false)}}
-                ><WindowSelectedSVG /></button> : <button
-                  className="w-full focus:outline-none"
-                  type="button"
-                  onClick={() => {this.handleWallOpening(true)}}
-                ><WindowSVG /></button>}
-              </div>
-            </div>
-
-
-            {this.state.wall.hasOpening && <OpeningForm 
+            <OpeningForm 
               wall={this.state.wall}
               opening={this.state.opening}
               handleOpeningChange={this.handleOpeningChange}
-              handleDoorChange={this.handleDoorChange}
-            />}
+              toogleDoor={this.toogleDoor}
+              toogleWindow={this.toogleWindow}
+            />
 
             <StudSections studs={this.state.wallStuds.concat(this.state.openingStuds)} />
           </div>
@@ -562,8 +562,6 @@ function adaptWallStudsToOpening(studs, wall, opening) {
   const length = opening.length;
   const height = opening.height;
   const sill = opening.sill;
-
-  console.log(studs);
 
     // remove or replace overlapping common studs
   // https://stackoverflow.com/questions/24812930/how-to-remove-element-from-array-in-foreach-loop
