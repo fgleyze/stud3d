@@ -61,7 +61,6 @@ function Controls() {
   
       return <Canvas camera={{ position: [-12, 0, 30] }}>
         <Controls />
-        <axesHelper/>
         <pointLight position={[150, 140, 100]} />
         <pointLight position={[-150, -140, -100]} />
         <group position={wallDimensions.map(coor => -Math.abs(coor / 100 / 2))}>
