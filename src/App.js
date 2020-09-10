@@ -207,7 +207,7 @@ class App extends React.Component {
   };
 
   state = {
-    isMenuOpen: true,
+    isMenuOpen: false,
     wall: {
       length: 3500,
       height: 2500,
@@ -295,10 +295,12 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="flex h-screen">
-        <div className="flex-0 relative">
+      <div className="flex h-screen w-screen">
+        <div
+          className={"mainMenu relative " + (!this.state.isMenuOpen ? "is-hidden" : "")}
+        >
 
-        <button className={"mainMenu-hamburger hamburger--elastic absolute top-0 w-4 m-6 focus:outline-none " + (this.state.isMenuOpen && "is-active")}
+        <button className={"mainMenu-hamburger hamburger--elastic absolute top-0 w-2 m-6 focus:outline-none " + (this.state.isMenuOpen ? "is-active" : "")}
           type="button" onClick={this.toogleMenu}
         >
           <span className="hamburger-box">
