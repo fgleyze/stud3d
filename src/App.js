@@ -1,5 +1,6 @@
 import React from 'react'
 import Canvas3d from './Canvas3d.js';
+import Collapsible from './Collapsible.js';
 import './App.css';
 import {studSection, junctions, calculateWallStuds, calculateOpeningStuds, adaptWallStudsToOpening} from "./studsCalculator.js";
 import { ReactComponent as DoorSVG } from './assets/svg/door.svg';
@@ -21,9 +22,10 @@ function WallForm(props) {
     </select>
   }
 
-  return <div>
-    <h2>Mur</h2>
-
+  return <Collapsible
+    isOpen={false} 
+    title="Mur"
+  >
     <label className="block mb-1">Longueur en mm :</label>
     <input
       className="block w-full border rounded py-2 px-3"
@@ -69,12 +71,14 @@ function WallForm(props) {
 
     <label className="block mb-1">Liaison droite :</label>
     {renderSelect("rightJunction", props.wall.rightJunction, props.handleWallChange)}
-  </div>
+  </Collapsible>
 }
 
 function OpeningForm(props) {
-  return <div>
-    <h2>Ouverture</h2>
+  return <Collapsible
+    title="Ouverture"
+    isOpen={false}
+  >
 
     <div className="flex">
       <div className="flex-1 m-2 p-4 hover:bg-orange-200 rounded-lg">
@@ -179,7 +183,7 @@ function OpeningForm(props) {
         />
       </div>}
     </div>}
-  </div>
+  </Collapsible>
 }
 
 function StudSections(props) {
@@ -189,10 +193,12 @@ function StudSections(props) {
     sections.push(<p>{stud.dimensions[0]} x {stud.dimensions[1]} x {stud.dimensions[2]}</p>)
   }
 
-  return <div>
-    <h2>Sections</h2>
+  return <Collapsible
+    title="Sections"
+    isOpen={true}
+  >
     {sections}
-  </div>;
+  </Collapsible>;
 }
 
 class App extends React.Component {
