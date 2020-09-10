@@ -187,17 +187,40 @@ function OpeningForm(props) {
 }
 
 function StudSections(props) {
+  let lengths = [];
+  
+  for (let stud of props.studs) {
+    if (stud.dimensions[0] !== studSection.width && stud.dimensions[0] !== studSection.height) {
+      lengths.push(stud.dimensions[0]);
+    } else if (stud.dimensions[1] !== studSection.width && stud.dimensions[0] !== studSection.height){
+      lengths.push(stud.dimensions[1]);
+    } else if  (stud.dimensions[2] !== studSection.width && stud.dimensions[0] !== studSection.height) {
+      lengths.push(stud.dimensions[2]);
+    }
+  }
+  
   let sections = [];
 
-  for (let stud of props.studs) {
-    sections.push(<p>{stud.dimensions[0]} x {stud.dimensions[1]} x {stud.dimensions[2]}</p>)
-  }
+  let uniqueLengths = lengths;
+  var count = {};
+  uniqueLengths.forEach(function(i) { count[i] = (count[i]||0) + 1;});
+  console.log(count);
+
+  Object.keys(count).forEach(function(key) {
+    if (key == 0 || count[key] == 0) {
+      return;
+    }
+    sections.push(<p>{count[key]} x <b>{key} mm</b></p>);
+  });
 
   return <Collapsible
-    title="Sections"
+    title="Sections "
     isOpen={true}
   >
-    {sections}
+{/*     <p className="mb-4">{"Sections " + studSection.width + " mm x " + studSection.height + " mm"}</p> */}
+    <div className="px-6 py-4 border-2 border-black border-dashed text-xl">
+      {sections}
+    </div>
   </Collapsible>;
 }
 
