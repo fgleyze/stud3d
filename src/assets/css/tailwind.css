@@ -4,6 +4,8 @@
 
 @tailwind utilities;
 
+@import './assets/css/hamburger.css';
+
 @import url('https://fonts.googleapis.com/css?family=Raleway:regular');
 @import url('https://fonts.googleapis.com/css?family=Josefin+Sans:regular');
 @import url('https://fonts.googleapis.com/css?family=Bebas+Neue:regular');
@@ -23,22 +25,25 @@ h2 {
   @apply mb-2;
 }
 
-.mainMenu {
-  min-width: 220px;
+.mainMenu-hamburger {
+  z-index: 1000;
+  right: -4rem;
 }
 
-.scroll::-webkit-scrollbar {
+.mainMenu-scrollbar::-webkit-scrollbar {
   width:7px;
 }
-.scroll::-webkit-scrollbar-track {
+
+.mainMenu-scrollbar::-webkit-scrollbar-track {
   background:white;
   border-radius:10px
 }
-.scroll::-webkit-scrollbar-thumb {
+
+.mainMenu-scrollbar::-webkit-scrollbar-thumb {
   background:#888;
   border-radius:10px;
 }
 
-.scroll::-webkit-scrollbar-thumb:hover {
+.mainMenu-scrollbar::-webkit-scrollbar-thumb:hover {
   background:#555;
 }

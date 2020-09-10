@@ -2,10 +2,10 @@ import React from 'react'
 import Canvas3d from './Canvas3d.js';
 import './App.css';
 import {studSection, junctions, calculateWallStuds, calculateOpeningStuds, adaptWallStudsToOpening} from "./studsCalculator.js";
-import { ReactComponent as DoorSVG } from './svg/door.svg';
-import { ReactComponent as DoorSelectedSVG } from './svg/door_selected.svg';
-import { ReactComponent as WindowSVG } from './svg/window.svg';
-import { ReactComponent as WindowSelectedSVG } from './svg/window_selected.svg';
+import { ReactComponent as DoorSVG } from './assets/svg/door.svg';
+import { ReactComponent as DoorSelectedSVG } from './assets/svg/door_selected.svg';
+import { ReactComponent as WindowSVG } from './assets/svg/window.svg';
+import { ReactComponent as WindowSelectedSVG } from './assets/svg/window_selected.svg';
 
 function WallForm(props) {
   function renderSelect(name, value, handleWallChange) {
@@ -21,7 +21,7 @@ function WallForm(props) {
     </select>
   }
 
-  return <div className="mainMenu">
+  return <div>
     <h2>Mur</h2>
 
     <label className="block mb-1">Longueur en mm :</label>
@@ -74,7 +74,7 @@ function WallForm(props) {
 
 function OpeningForm(props) {
   return <div>
-    <h2 className="text-xl font-bold mb-2">Ouverture</h2>
+    <h2>Ouverture</h2>
 
     <div className="flex">
       <div className="flex-1 m-2 p-4 hover:bg-orange-200 rounded-lg">
@@ -190,7 +190,7 @@ function StudSections(props) {
   }
 
   return <div>
-    <h2 className="text-xl font-bold mb-2">Sections</h2>
+    <h2>Sections</h2>
     {sections}
   </div>;
 }
@@ -207,6 +207,7 @@ class App extends React.Component {
   };
 
   state = {
+    isMenuOpen: true,
     wall: {
       length: 3500,
       height: 2500,
@@ -221,9 +222,15 @@ class App extends React.Component {
 
   componentDidMount() {
     this.calculateStuds(this.state.wall, this.state.opening);
- }
+  }
 
-   handleWallChange = event => {
+  toogleMenu = () => {
+    this.setState({
+      isMenuOpen: !this.state.isMenuOpen,
+    });
+  }
+
+  handleWallChange = event => {
     const wall = Object.assign({}, this.state.wall);
     wall[event.target.name] = parseInt(event.target.value);
 
@@ -289,7 +296,17 @@ class App extends React.Component {
   render() {
     return (
       <div className="flex h-screen">
-        <div className="scroll overflow-y-scroll relative flex-0 border-r border-solid border-gray-300">
+        <div className="flex-0 relative">
+
+        <button className={"mainMenu-hamburger hamburger--elastic absolute top-0 w-4 m-6 focus:outline-none " + (this.state.isMenuOpen && "is-active")}
+          type="button" onClick={this.toogleMenu}
+        >
+          <span className="hamburger-box">
+            <span className="hamburger-inner"></span>
+          </span>
+        </button>  
+
+        <div className="h-screen mainMenu-scrollbar overflow-y-scroll border-r border-solid border-gray-300">
           <div className="px-4">
             <h1 className="underline py-4 text-center text-6xl">Stud 3D</h1>
 
@@ -308,6 +325,7 @@ class App extends React.Component {
             />
 
             <StudSections studs={this.state.wallStuds.concat(this.state.openingStuds)} />
+          </div>
           </div>
         </div>
         <div className="flex-1">

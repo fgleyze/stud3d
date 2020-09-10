@@ -20,8 +20,8 @@
   "scripts": {
     "start": "npm-run-all build:tailwind --parallel watch:tailwind start:react",
     "start:react": "react-scripts start",
-    "build:tailwind": "yarn tailwind build ./src/tailwind.css -c tailwind.config.js -o ./src/App.css",
-    "watch:tailwind": "chokidar './src/tailwind.css' -c 'yarn build:tailwind'",
+    "build:tailwind": "yarn tailwind build ./src/assets/css/tailwind.css -c tailwind.config.js -o ./src/App.css",
+    "watch:tailwind": "chokidar './src/assets/css/tailwind.css' -c 'yarn build:tailwind'",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
