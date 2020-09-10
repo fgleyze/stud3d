@@ -1,7 +1,6 @@
 import React from 'react'
 import Canvas3d from './Canvas3d.js';
 import './App.css';
-import './custom.css';
 import {studSection, junctions, calculateWallStuds, calculateOpeningStuds, adaptWallStudsToOpening} from "./studsCalculator.js";
 import { ReactComponent as DoorSVG } from './svg/door.svg';
 import { ReactComponent as DoorSelectedSVG } from './svg/door_selected.svg';
@@ -23,7 +22,7 @@ function WallForm(props) {
   }
 
   return <div className="mainMenu">
-    <h1 className="text-lg font-bold mb-2">Mur</h1>
+    <h2>Mur</h2>
 
     <label className="block mb-1">Longueur en mm :</label>
     <input
@@ -75,7 +74,7 @@ function WallForm(props) {
 
 function OpeningForm(props) {
   return <div>
-    <h1 className="text-lg font-bold mb-2">Ouverture</h1>
+    <h2 className="text-xl font-bold mb-2">Ouverture</h2>
 
     <div className="flex">
       <div className="flex-1 m-2 p-4 hover:bg-orange-200 rounded-lg">
@@ -191,7 +190,7 @@ function StudSections(props) {
   }
 
   return <div>
-    <h1 className="text-lg font-bold mb-2">Sections</h1>
+    <h2 className="text-xl font-bold mb-2">Sections</h2>
     {sections}
   </div>;
 }
@@ -240,10 +239,11 @@ class App extends React.Component {
 
   toogleDoor = isDoor => {
     const wall = Object.assign({}, this.state.wall);
-    let opening = isDoor ? Object.assign({}, this.defaultOpening) : [];
+    let opening = [];
     wall.hasOpening = isDoor;
     
     if (isDoor) {
+      opening = Object.assign({}, this.defaultOpening);
       opening.isDoor = isDoor
       opening.height = this.state.wall.height - (2*studSection.width + studSection.height);
       opening.sill = 0;
@@ -256,9 +256,10 @@ class App extends React.Component {
   toogleWindow = hasOpening => {
     const wall = Object.assign({}, this.state.wall);
     wall.hasOpening = hasOpening;
-    const opening = hasOpening ? Object.assign({}, this.defaultOpening) : [];
+    let opening = [];
     
     if (hasOpening) {
+      opening = Object.assign({}, this.defaultOpening);
       const globalHeight = this.state.wall.height - (2*studSection.width + studSection.height);
       opening.height = Math.round(globalHeight / 2 - 1);
       opening.sill = Math.round(globalHeight / 2);
@@ -290,7 +291,7 @@ class App extends React.Component {
       <div className="flex h-screen">
         <div className="scroll overflow-y-scroll relative flex-0 border-r border-solid border-gray-300">
           <div className="px-4">
-            <p className="mainTitle py-4 text-center text-6xl">Stud 3D</p>
+            <h1 className="underline py-4 text-center text-6xl">Stud 3D</h1>
 
             <WallForm 
               wall={this.state.wall}

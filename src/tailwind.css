@@ -3,3 +3,42 @@
 @tailwind components;
 
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css?family=Raleway:regular');
+@import url('https://fonts.googleapis.com/css?family=Josefin+Sans:regular');
+@import url('https://fonts.googleapis.com/css?family=Bebas+Neue:regular');
+
+body {
+  font-family: 'Raleway', cursive;
+}
+
+h1 {
+  font-family: 'Bebas Neue';
+}
+
+h2 {
+  font-family: 'Josefin Sans';
+  @apply text-2xl;
+  @apply font-bold; 
+  @apply mb-2;
+}
+
+.mainMenu {
+  min-width: 220px;
+}
+
+.scroll::-webkit-scrollbar {
+  width:7px;
+}
+.scroll::-webkit-scrollbar-track {
+  background:white;
+  border-radius:10px
+}
+.scroll::-webkit-scrollbar-thumb {
+  background:#888;
+  border-radius:10px;
+}
+
+.scroll::-webkit-scrollbar-thumb:hover {
+  background:#555;
+}
