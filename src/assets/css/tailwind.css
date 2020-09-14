@@ -25,6 +25,10 @@ h2 {
   @apply mb-2;
 }
 
+a {
+  text-decoration: underline;
+}
+
 @media screen and (max-width: 830px) {
   .mainMenu {
     position: absolute;

@@ -1,6 +1,7 @@
 import React from 'react'
 import Canvas3d from './Canvas3d.js';
 import Collapsible from './Collapsible.js';
+import TitleExplained from './TitleExplained.js';
 import './App.css';
 import {studSection, junctions, calculateWallStuds, calculateOpeningStuds, adaptWallStudsToOpening} from "./studsCalculator.js";
 import { ReactComponent as DoorSVG } from './assets/svg/door.svg';
@@ -217,9 +218,11 @@ function StudSections(props) {
     title="Sections "
     isOpen={true}
   >
-{/*     <p className="mb-4">{"Sections " + studSection.width + " mm x " + studSection.height + " mm"}</p> */}
-    <div className="px-6 py-4 border-2 border-black border-dashed text-xl">
+    <div className="px-6 py-4 mb-4 border-2 border-black border-dashed text-xl">
       {sections}
+    </div>
+    <div className="p-4 text-justify bg-orange-200 text-sm rounded-lg">
+      <p>Les sections standard font <strong>{studSection.width + " mm x " + studSection.height + " mm"}</strong>. Les linteaux sont ici constitués de 3 sections standards mais doivent être <a href="https://fr.twiza.org/article/86/info-bois-n-1-les-abaques" target="_blank">adaptés à l'ouverture.</a></p>
     </div>
   </Collapsible>;
 }
@@ -337,10 +340,11 @@ class App extends React.Component {
           </span>
         </button>  
 
-        <div className="h-screen mainMenu-scrollbar overflow-y-scroll border-r border-solid border-gray-300">
+        <div className="mainMenu-scrollbar overflow-y-scroll border-r border-solid border-gray-300">
           <div className="px-4">
-            <h1 className="underline py-4 text-center text-6xl">Stud 3D</h1>
-
+            <TitleExplained 
+              isOpen={false}
+            />
             <WallForm 
               wall={this.state.wall}
               opening={this.state.opening}
