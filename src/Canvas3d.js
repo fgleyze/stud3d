@@ -52,14 +52,14 @@ function Controls() {
   
   function Canvas3d(props) {  
       const wallDimensions = [props.length, props.height, 145];
-  
+    console.log(window.innerWidth)
       let renderedStuds = [];
   
       for (let stud of props.studs) {
         renderedStuds.push(<Stud dimensions={stud.dimensions} positions={stud.positions}/>)
       }
   
-      return <Canvas camera={{ position: [-12, 0, 30] }}>
+      return <Canvas camera={{ position: [-12, 0, window.innerWidth > 800 ? 30 : 70] }}>
         <Controls />
         <pointLight position={[150, 140, 100]} />
         <pointLight position={[-150, -140, -100]} />
