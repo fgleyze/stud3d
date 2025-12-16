@@ -1,8 +1,7 @@
 import React from 'react'
-import Canvas3d from './Canvas3d.js';
-import Collapsible from './Collapsible.js';
-import TitleExplained from './TitleExplained.js';
-import './App.css';
+import Canvas3d from './Canvas3d.jsx';
+import Collapsible from './Collapsible.jsx';
+import TitleExplained from './TitleExplained.jsx';
 import {studSection, junctions, calculateWallStuds, calculateOpeningStuds, adaptWallStudsToOpening} from "./studsCalculator.js";
 import { ReactComponent as DoorSVG } from './assets/svg/door.svg';
 import { ReactComponent as DoorSelectedSVG } from './assets/svg/door_selected.svg';
@@ -205,13 +204,12 @@ function StudSections(props) {
   let uniqueLengths = lengths;
   var count = {};
   uniqueLengths.forEach(function(i) { count[i] = (count[i]||0) + 1;});
-  console.log(count);
 
   Object.keys(count).forEach(function(key) {
     if (key == 0 || count[key] == 0) {
       return;
     }
-    sections.push(<p>{count[key]} x <b>{key} mm</b></p>);
+    sections.push(<p key={key}>{count[key]} x <b>{key} mm</b></p>);
   });
 
   return <Collapsible
@@ -222,7 +220,7 @@ function StudSections(props) {
       {sections}
     </div>
     <div className="p-4 text-justify bg-orange-200 text-sm rounded-lg">
-      <p>Les sections standard font <strong>{studSection.width + " mm x " + studSection.height + " mm"}</strong>. Les linteaux sont ici constitués de 3 sections standards mais doivent être <a href="https://fr.twiza.org/article/86/info-bois-n-1-les-abaques" target="_blank">adaptés à l'ouverture.</a></p>
+      <p>Les sections standard font <strong>{studSection.width + " mm x " + studSection.height + " mm"}</strong>. Les linteaux sont ici constitués de 3 sections standards mais doivent être <a href="https://fr.twiza.org/article/86/info-bois-n-1-les-abaques" target="_blank" rel="noopener noreferrer">adaptés à l'ouverture.</a></p>
     </div>
   </Collapsible>;
 }
@@ -327,7 +325,7 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="flex h-screen w-screen">
+      <div className="flex h-screen w-screen overflow-hidden">
         <div
           className={"mainMenu relative " + (!this.state.isMenuOpen ? "is-hidden" : "")}
         >
@@ -340,7 +338,7 @@ class App extends React.Component {
           </span>
         </button>  
 
-        <div className="mainMenu-scrollbar overflow-y-scroll border-r border-solid border-gray-300">
+        <div className="mainMenu-scrollbar h-full overflow-y-auto border-r border-solid border-gray-300">
           <div className="px-4">
             <TitleExplained 
               isOpen={false}
@@ -370,8 +368,8 @@ class App extends React.Component {
             studs={this.state.wallStuds.concat(this.state.openingStuds)}
           />
         </div>
-        <a href="https://github.com/fgleyze/stud3d" target="_blank" className="absolute bottom-0 right-0 p-4">
-          <img className="mx-auto h-8" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMGMtNi42MjYgMC0xMiA1LjM3My0xMiAxMiAwIDUuMzAyIDMuNDM4IDkuOCA4LjIwNyAxMS4zODcuNTk5LjExMS43OTMtLjI2MS43OTMtLjU3N3YtMi4yMzRjLTMuMzM4LjcyNi00LjAzMy0xLjQxNi00LjAzMy0xLjQxNi0uNTQ2LTEuMzg3LTEuMzMzLTEuNzU2LTEuMzMzLTEuNzU2LTEuMDg5LS43NDUuMDgzLS43MjkuMDgzLS43MjkgMS4yMDUuMDg0IDEuODM5IDEuMjM3IDEuODM5IDEuMjM3IDEuMDcgMS44MzQgMi44MDcgMS4zMDQgMy40OTIuOTk3LjEwNy0uNzc1LjQxOC0xLjMwNS43NjItMS42MDQtMi42NjUtLjMwNS01LjQ2Ny0xLjMzNC01LjQ2Ny01LjkzMSAwLTEuMzExLjQ2OS0yLjM4MSAxLjIzNi0zLjIyMS0uMTI0LS4zMDMtLjUzNS0xLjUyNC4xMTctMy4xNzYgMCAwIDEuMDA4LS4zMjIgMy4zMDEgMS4yMy45NTctLjI2NiAxLjk4My0uMzk5IDMuMDAzLS40MDQgMS4wMi4wMDUgMi4wNDcuMTM4IDMuMDA2LjQwNCAyLjI5MS0xLjU1MiAzLjI5Ny0xLjIzIDMuMjk3LTEuMjMuNjUzIDEuNjUzLjI0MiAyLjg3NC4xMTggMy4xNzYuNzcuODQgMS4yMzUgMS45MTEgMS4yMzUgMy4yMjEgMCA0LjYwOS0yLjgwNyA1LjYyNC01LjQ3OSA1LjkyMS40My4zNzIuODIzIDEuMTAyLjgyMyAyLjIyMnYzLjI5M2MwIC4zMTkuMTkyLjY5NC44MDEuNTc2IDQuNzY1LTEuNTg5IDguMTk5LTYuMDg2IDguMTk5LTExLjM4NiAwLTYuNjI3LTUuMzczLTEyLTEyLTEyeiIvPjwvc3ZnPg=="></img>
+        <a href="https://github.com/fgleyze/stud3d" target="_blank" rel="noopener noreferrer" className="absolute bottom-0 right-0 p-4">
+          <img className="mx-auto h-8" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMGMtNi42MjYgMC0xMiA1LjM3My0xMiAxMiAwIDUuMzAyIDMuNDM4IDkuOCA4LjIwNyAxMS4zODcuNTk5LjExMS43OTMtLjI2MS43OTMtLjU3N3YtMi4yMzRjLTMuMzM4LjcyNi00LjAzMy0xLjQxNi00LjAzMy0xLjQxNi0uNTQ2LTEuMzg3LTEuMzMzLTEuNzU2LTEuMzMzLTEuNzU2LTEuMDg5LS43NDUuMDgzLS43MjkuMDgzLS43MjkgMS4yMDUuMDg0IDEuODM5IDEuMjM3IDEuODM5IDEuMjM3IDEuMDcgMS44MzQgMi44MDcgMS4zMDQgMy40OTIuOTk3LjEwNy0uNzc1LjQxOC0xLjMwNS43NjItMS42MDQtMi42NjUtLjMwNS01LjQ2Ny0xLjMzNC01LjQ2Ny01LjkzMSAwLTEuMzExLjQ2OS0yLjM4MSAxLjIzNi0zLjIyMS0uMTI0LS4zMDMtLjUzNS0xLjUyNC4xMTctMy4xNzYgMCAwIDEuMDA4LS4zMjIgMy4zMDEgMS4yMy45NTctLjI2NiAxLjk4My0uMzk5IDMuMDAzLS40MDQgMS4wMi4wMDUgMi4wNDcuMTM4IDMuMDA2LjQwNCAyLjI5MS0xLjU1MiAzLjI5Ny0xLjIzIDMuMjk3LTEuMjMuNjUzIDEuNjUzLjI0MiAyLjg3NC4xMTggMy4xNzYuNzcuODQgMS4yMzUgMS45MTEgMS4yMzUgMy4yMjEgMCA0LjYwOS0yLjgwNyA1LjYyNC01LjQ3OSA1LjkyMS40My4zNzIuODIzIDEuMTAyLjgyMyAyLjIyMnYzLjI5M2MwIC4zMTkuMTkyLjY5NC44MDEuNTc2IDQuNzY1LTEuNTg5IDguMTk5LTYuMDg2IDguMTk5LTExLjM4NiAwLTYuNjI3LTUuMzczLTEyLTEyLTEyeiIvPjwvc3ZnPg==" alt="GitHub"></img>
         </a>
       </div>
     );
@@ -379,3 +377,4 @@ class App extends React.Component {
 }
 
 export default App;
+
