@@ -1,6 +1,6 @@
-# Stud3D
+# MOB 3D
 
-This project generates 3D walls for timber frame houses. [You can test it here](http://fgleyze.com/stud3d/)
+This project generates 3D walls for timber frame houses. [You can test it here](http://fgleyze.com/mob/)
 
 ## Tech Stack
 

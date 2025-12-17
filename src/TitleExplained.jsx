@@ -14,8 +14,8 @@ class TitleExplained extends React.Component {
 
     render() {
         return (<div> 
-            <h1 className="underline ml-2 text-6xl">
-                Stud 3D
+            <h1 className="underline ml-2 my-4 text-6xl text-center">
+                MOB 3D
                 <svg  onClick={this.toogle} className="w-5 inline-block cursor-pointer ml-4" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     {this.state.isOpen && <circle fill="#feebc8" cx="8" cy="8" r="7"/>}
                     <path fillRule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
