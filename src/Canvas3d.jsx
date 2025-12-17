@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 
 function Stud({ dimensions, positions }) {
@@ -31,6 +31,8 @@ function Stud({ dimensions, positions }) {
       </lineSegments>
       <mesh
         ref={mesh}
+        castShadow
+        receiveShadow
         onPointerOver={(e) => setHover(true)}
         onPointerOut={(e) => setHover(false)}
       >
@@ -45,11 +47,25 @@ function Canvas3d(props) {
   const wallDimensions = [props.length, props.height, 145];
 
   return (
-    <Canvas camera={{ position: [-12, 0, window.innerWidth > 800 ? 30 : 70] }}>
+    <Canvas 
+      shadows
+      camera={{ position: [-12, 0, window.innerWidth > 800 ? 30 : 70] }}
+    >
       <OrbitControls />
-      <ambientLight intensity={0.6} />
-      <pointLight position={[150, 140, 100]} intensity={1} />
-      <pointLight position={[-150, -140, -100]} intensity={0.5} />
+      <ambientLight intensity={0.5} />
+      <directionalLight 
+        position={[-10, 15, 10]} 
+        intensity={1} 
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-far={50}
+        shadow-camera-left={-20}
+        shadow-camera-right={20}
+        shadow-camera-top={20}
+        shadow-camera-bottom={-20}
+      />
+      <pointLight position={[-10, -10, -10]} intensity={0.3} />
       <group position={wallDimensions.map(coor => -Math.abs(coor / 100 / 2))}>
         {props.studs.map((stud, index) => (
           <Stud 
@@ -59,6 +75,13 @@ function Canvas3d(props) {
           />
         ))}
       </group>
+      <ContactShadows 
+        position={[0, -props.height / 100 / 2 - 0.01, 0]} 
+        opacity={0.4} 
+        scale={40} 
+        blur={2} 
+        far={10}
+      />
     </Canvas>
   )
 }
